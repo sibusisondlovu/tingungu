@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/buy_airtime_screen.dart';
+import '../screens/store_screen.dart';
 import '../splash.dart';
 
 class RouteGenerator {
@@ -13,6 +14,9 @@ class RouteGenerator {
 
       case BuyAirtimeScreen.id:
         return _route(const BuyAirtimeScreen());
+
+      case StoreScreen.id:
+        return _route(const StoreScreen());
 
       default:
         return _errorRoute(settings.name);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 
 class BuyAirtimeScreen extends StatefulWidget {
@@ -26,18 +28,52 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text;
-      final amount = _amountController.text;
-      final network = _selectedNetwork;
+  Future<void> processPayment(String amount, String network, String phone) async {
+    final itemName = Uri.encodeComponent('Airtime Top-up');
+    final itemDescription = Uri.encodeComponent('$network Airtime for $phone');
+    final base = 'https://payment.payfast.io/eng/process';
+    final query = 'cmd=_paynow&receiver=14362369'
+        '&item_name=$itemName'
+        '&email_confirmation=1'
+        '&confirmation_address=conferencendlovu@gmail.com'
+        '&item_description=$itemDescription'
+        '&return_url=https://www.tingungu.co.za/success'
+        '&cancel_url=https://www.tingungu.co.za/cancel'
+        '&notify_url=https://www.tingungu.co.za/notify'
+        '&amount=${Uri.encodeComponent(amount)}';
 
-      // TODO: Integrate payment or API logic here
+    final uri = Uri.parse('$base?$query');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            SpinKitCircle(color: Colors.deepPurple, size: 50),
+            SizedBox(height: 16),
+            Text("Processing Payment..."),
+          ],
+        ),
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 2));
+    Navigator.of(context).pop();
+
+    try {
+      Navigator.of(context).pop();
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw 'launchUrl returned false';
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Buying R$amount airtime for $phone on $network')),
+        SnackBar(content: Text('Payment failed: $e')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +165,9 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: (){
+                    processPayment("50","MTN-59","0826468770");
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Constants.primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 14),

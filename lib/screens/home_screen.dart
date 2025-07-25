@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/constants.dart';
 
@@ -17,6 +18,17 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  void _launchSermon(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open sermon video.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: Drawer(),
+      drawer: _buildDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -170,7 +182,23 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () {}, // Navigate to Sell Page
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('This feature is not enabled in this version. Coming Soon!'),
+                      action: SnackBarAction(
+                        label: 'Dismiss',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        },
+                      ),
+                      backgroundColor: Constants.ascentColor,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
+                }, // Navigate to Sell Page
                 child: Card(
                   color: Constants.primaryColor.withOpacity(0.8),
                   shape: RoundedRectangleBorder(
@@ -220,24 +248,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _latestSermonCard() {
+    final sermons = [
+      {
+        'title': 'Faith Over Fear',
+        'date': 'June 1, 2025',
+        'url': 'https://www.youtube.com/watch?v=VIDEO_ID1',
+      },
+      {
+        'title': 'The Power of Prayer',
+        'date': 'May 25, 2025',
+        'url': 'https://www.youtube.com/watch?v=VIDEO_ID2',
+      },
+      {
+        'title': 'Walking in Grace',
+        'date': 'May 18, 2025',
+        'url': 'https://www.youtube.com/watch?v=VIDEO_ID3',
+      },
+    ];
+
     return Card(
       color: Constants.ascentColor.withOpacity(0.1),
       child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.play_circle_fill, color: Constants.primaryColor),
-            title: const Text("Faith Over Fear"),
-            subtitle: const Text("June 1, 2025"),
-            onTap: () {}, // Navigate to sermon
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.play_circle_fill, color: Constants.primaryColor),
-            title: const Text("The Power of Prayer"),
-            subtitle: const Text("May 25, 2025"),
-            onTap: () {},
-          ),
-        ],
+        children: sermons.map((sermon) {
+          return Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.play_circle_fill, color: Constants.primaryColor),
+                title: Text(sermon['title']!),
+                subtitle: Text(sermon['date']!),
+                onTap: () => _launchSermon(sermon['url']!),
+              ),
+              if (sermon != sermons.last) const Divider(),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -247,13 +291,156 @@ class _HomeScreenState extends State<HomeScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Constants.ascentColor.withOpacity(0.5),
       child: ListTile(
-        title: const Text("Youth Revival Night", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Youth Revival Night",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: const Text("Sat, June 15 · 6:00 PM"),
         trailing: const Icon(Icons.event),
-        onTap: () {}, // Link to Event Page
+        onTap: () {
+          _showEventDetailsDialog(
+            title: "Youth Revival Night",
+            date: "Saturday, June 15, 2025",
+            description:
+            "Join us for a powerful night of worship, testimonies, and revival hosted by the Methodist Church Youth. All societies welcome. Starts at 6 PM sharp!",
+          );
+        },
       ),
     );
   }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            accountName: const Text('Sibusiso'),
+            accountEmail: const Text('Chesterville'),
+            currentAccountPicture: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 40, color: Constants.primaryColor),
+            ),
+            decoration: const BoxDecoration(
+              color: Constants.primaryColor,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to Profile screen
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.card_giftcard),
+            title: const Text('Giving'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to Giving screen
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About Tingungu'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to About screen
+            },
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Log out logic
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(45),
+              ),
+              icon: const Icon(Icons.logout),
+              label: const Text('Log Out'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Version 1.0.0',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Powered by Jaspa',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+
+
+  void _showEventDetailsDialog({
+    required String title,
+    required String date,
+    required String description,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Constants.primaryColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  date,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Constants.primaryColor,
+                  ),
+                  child: const Text('Dismiss'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   void _showBuyOptions() {
     showModalBottomSheet(
@@ -270,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Tingungu Store'),
               onTap: () {
                 Navigator.pop(context);
-                _navigateTo('store');
+                Navigator.pushNamed(context, 'storeScreen');
               },
             ),
             ListTile(
