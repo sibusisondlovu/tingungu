@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:tingungu_app/screens/register_screen.dart';
+
+import '../utils/constants.dart' show Constants;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,10 +20,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirstLaunch', false);
 
-    // Navigator.pushReplacement(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => const LoginScreen()),
-    // );
+     Navigator.pushReplacement(
+       context,
+       MaterialPageRoute(builder: (context) => const RegisterScreen()),);
   }
 
   @override
@@ -38,25 +40,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
                 children: const [
                   _OnboardPage(
-                    image: 'assets/images/logo.png',
+                    image: 'lib/assets/images/logo.png',
                     title: 'Welcome to Tingungu',
                     description:
                     'Your church companion app – connect with your society, stay informed, and access spiritual support.',
                   ),
                   _OnboardPage(
-                    image: 'assets/images/bill.png',
+                    image: 'lib/assets/images/logo.png',
                     title: 'Buy & Pay Easily',
                     description:
                     'Buy airtime, pay electricity bills, send vouchers and much more right inside the app.',
                   ),
                   _OnboardPage(
-                    image: 'assets/images/notify.png',
+                    image: 'lib/assets/images/logo.png',
                     title: 'Stay Updated',
                     description:
                     'Get instant notifications for church announcements, events, and society notices.',
                   ),
                   _OnboardPage(
-                    image: 'assets/images/giving.png',
+                    image: 'lib/assets/images/logo.png',
                     title: 'Secure Giving',
                     description:
                     'Give your tithes, offerings, and pledges in a few taps with trusted channels.',
@@ -68,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               controller: _controller,
               count: 4,
               effect: const WormEffect(
-                activeDotColor: Colors.deepPurple,
+                activeDotColor: Constants.primaryColor,
                 dotHeight: 10,
                 dotWidth: 10,
               ),
@@ -78,10 +80,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ? ElevatedButton(
               onPressed: _finishOnboarding,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Constants.primaryColor,
                 minimumSize: const Size.fromHeight(50),
               ),
-              child: const Text('Get Started'),
+              child: const Text('GET STARTED'),
             )
                 : TextButton(
               onPressed: () {
@@ -89,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
               },
-              child: const Text('Next'),
+              child: const Text('NEXT', style: TextStyle(color: Colors.white),),
             ),
           ],
         ),
