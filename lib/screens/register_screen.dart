@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,11 +20,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _agreedToTerms = false;
   bool _isLoading = false;
-  String _statusMessage = "Please wait, creating your account...";
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  Timer? _delayTimer;
 
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
@@ -38,30 +35,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       setState(() {
         _isLoading = true;
-        _statusMessage = "Please wait, creating your account...";
-      });
-
-      // ✅ Start timer to update message if taking too long
-      _delayTimer = Timer(const Duration(seconds: 6), () {
-        if (mounted && _isLoading) {
-          setState(() {
-            _statusMessage = "This is taking longer than usual, please wait...";
-          });
-        }
       });
 
       try {
-        // ✅ Firebase Auth Registration (passwordless)
-        // We'll generate a random password since Firebase requires one
-        String tempPassword = DateTime.now().millisecondsSinceEpoch.toString();
+
         UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
-          password: tempPassword,
+          password: "tempPassword",
         );
 
         final uid = userCredential.user?.uid;
 
-        // ✅ Create Firestore user record
+        // ✅ Save user data in Firestore
         await _firestore.collection('users').doc(uid).set({
           'name': _nameController.text.trim().isEmpty
               ? 'no-data-provided'
@@ -70,39 +55,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'cellnumber': 'no-data-provided',
           'avatar': 'no-data-provided',
           'society': 'no-data-provided',
-          'createdAt': FieldValue.serverTimestamp(),
         });
 
         if (!mounted) return;
 
-        _delayTimer?.cancel();
         setState(() => _isLoading = false);
 
-        // ✅ Show success with button to continue
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text("✅ Account created successfully!"),
-            action: SnackBarAction(
-              label: 'Continue',
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, 'homeScreen');
-              },
-            ),
             backgroundColor: Colors.green,
-            duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 3),
           ),
         );
 
-        // ✅ Auto navigate after 3 seconds if user doesn’t click
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, 'homeScreen');
-          }
-        });
+        Navigator.pushReplacementNamed(context, 'homeScreen');
 
       } on FirebaseAuthException catch (e) {
-        _delayTimer?.cancel();
         setState(() => _isLoading = false);
 
         String message = "Something went wrong";
@@ -115,16 +84,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
-      } finally {
-        _delayTimer?.cancel();
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _delayTimer?.cancel();
-    super.dispose();
   }
 
   @override
@@ -211,13 +172,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 },
                                 child: RichText(
                                   text: const TextSpan(
-                                    text:
-                                    "By creating an account, you agree to our ",
+                                    text: "By creating an account, you agree to our ",
                                     style: TextStyle(fontSize: 12, color: Colors.black87),
                                     children: [
                                       TextSpan(
-                                        text:
-                                        "Terms of Service, Data Privacy Policy & POPIA.",
+                                        text: "Terms of Service, Data Privacy Policy & POPIA.",
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Constants.primaryColor,
@@ -290,18 +249,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (_isLoading)
               Container(
                 color: Colors.black54,
-                child: Center(
+                child: const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SpinKitFadingCircle(
+                      SpinKitFadingCircle(
                         color: Colors.white,
                         size: 60.0,
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       Text(
-                        _statusMessage,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        "Creating your account...",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],
                   ),

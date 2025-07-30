@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/buy_airtime_screen.dart';
+import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/store_screen.dart';
 import '../splash.dart';
@@ -21,6 +22,9 @@ class RouteGenerator {
 
       case RegisterScreen.id:
         return _route(const RegisterScreen());
+
+      case ProfilePage.id:
+        return _route(const ProfilePage());
 
       default:
         return _errorRoute(settings.name);

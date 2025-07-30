@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/constants.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              _activateAccount(),
+             // _activateAccount(),
               const SizedBox(height: 20),
               _dailyVerseCard(),
               const SizedBox(height: 20),
@@ -329,7 +330,10 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Profile'),
             onTap: () {
               Navigator.pop(context);
-              // TODO: Navigate to Profile screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
             },
           ),
           ListTile(
