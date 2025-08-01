@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
+import 'payfast_page.dart';
 
 class BuyAirtimeScreen extends StatefulWidget {
   const BuyAirtimeScreen({super.key});
@@ -79,9 +80,13 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buy Airtime'),
+        centerTitle: true,
         backgroundColor: Constants.primaryColor,
-        foregroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.white), // makes the back icon white
+        title: Text(
+          'Buy Airtime',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -165,8 +170,33 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (){
-                    processPayment("50","MTN-59","0826468770");
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PayFastWebView(
+                          formData: {
+                            'merchant_id': '10000100',
+                            'merchant_key': '46f0cd694581a',
+                            'return_url': 'https://www.example.com/success',
+                            'cancel_url': 'https://www.example.com/cancel',
+                            'notify_url': 'https://www.example.com/notify',
+                            'name_first': 'John',
+                            'name_last': 'Doe',
+                            'm_payment_id': '01AB',
+                            'amount': '100.00',
+                            'item_name': 'Test Item',
+                            'item_description': 'A test product',
+                            'custom_int1': '2',
+                            'custom_str1': 'Extra order information',
+                            'email_address': 'john@doe.com',
+                            'cell_number': '0823456789',
+                          },
+                        ),
+                      ),
+                    );
+                    // await saveGiving();
+                    // 👉 Will add PayFast integration here
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Constants.primaryColor,

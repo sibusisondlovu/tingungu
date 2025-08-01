@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tingungu_app/screens/payfast_page.dart';
+
+import '../utils/constants.dart';
 
 class GivingPage extends StatefulWidget {
   static const String id = "givingScreen";
@@ -83,7 +86,18 @@ class _GivingPageState extends State<GivingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Giving")),
+      appBar: AppBar(
+        title: const Text('Giving', style: TextStyle(fontSize: 16, color: Colors.white)),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Constants.primaryColor,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Icon(Icons.notification_add, color: Colors.white),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -164,7 +178,31 @@ class _GivingPageState extends State<GivingPage> {
                     padding: EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () async {
-                    await saveGiving();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PayFastWebView(
+                          formData: {
+                            'merchant_id': '10000100',
+                            'merchant_key': '46f0cd694581a',
+                            'return_url': 'https://www.example.com/success',
+                            'cancel_url': 'https://www.example.com/cancel',
+                            'notify_url': 'https://www.example.com/notify',
+                            'name_first': 'John',
+                            'name_last': 'Doe',
+                            'm_payment_id': '01AB',
+                            'amount': '100.00',
+                            'item_name': 'Test Item',
+                            'item_description': 'A test product',
+                            'custom_int1': '2',
+                            'custom_str1': 'Extra order information',
+                            'email_address': 'john@doe.com',
+                            'cell_number': '0823456789',
+                          },
+                        ),
+                      ),
+                    );
+                   // await saveGiving();
                     // 👉 Will add PayFast integration here
                   },
                 ),

@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tingungu_app/screens/buy_airtime_screen.dart';
+import 'package:tingungu_app/screens/giving_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils/constants.dart';
@@ -315,17 +317,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Drawer(
       child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            accountName: const Text('Sibusiso'),
-            accountEmail: const Text('Chesterville'),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, size: 40, color: Constants.primaryColor),
-            ),
-            decoration: const BoxDecoration(
-              color: Constants.primaryColor,
-            ),
-          ),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Profile'),
@@ -342,7 +333,10 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Giving'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, 'givingScreen');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GivingPage()),
+              );
             },
           ),
           ListTile(
@@ -462,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Tingungu Store'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, 'storeScreen');
+                _navigateTo('Tingungu Store');
               },
             ),
             ListTile(
@@ -470,7 +464,10 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Buy Airtime'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, 'buyAirTineScreen');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BuyAirtimeScreen()),
+                );
               },
             ),
             ListTile(
@@ -478,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Buy Electricity'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.pushNamed(context, 'buyAirTineScreen');
+                _navigateTo('Buy Electricity');
               },
             ),
             ListTile(
@@ -486,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Buy Data'),
               onTap: () {
                 Navigator.pop(context);
-                _navigateTo('data');
+                _navigateTo('Buy Data');
               },
             ),
           ],

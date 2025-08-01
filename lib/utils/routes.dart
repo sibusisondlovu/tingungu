@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:tingungu_app/screens/home_screen.dart';
 
 import '../screens/buy_airtime_screen.dart';
 import '../screens/giving_page.dart';
+import '../screens/payfast_page.dart';
 import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/society_selection_screen.dart';
@@ -15,6 +17,9 @@ class RouteGenerator {
     switch (settings.name) {
       case Splash.id:
         return _route(const Splash());
+
+      case HomeScreen.id:
+        return _route(const HomeScreen());
 
       case BuyAirtimeScreen.id:
         return _route(const BuyAirtimeScreen());
