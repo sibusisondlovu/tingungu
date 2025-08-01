@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 
 import '../screens/buy_airtime_screen.dart';
+import '../screens/giving_page.dart';
 import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
+import '../screens/society_selection_screen.dart';
 import '../screens/store_screen.dart';
 import '../splash.dart';
 
@@ -25,6 +27,12 @@ class RouteGenerator {
 
       case ProfilePage.id:
         return _route(const ProfilePage());
+
+      case SocietySelectionPage.id:
+        return _route(SocietySelectionPage(currentSociety: args,));
+
+      case GivingPage.id:
+        return _route(const GivingPage());
 
       default:
         return _errorRoute(settings.name);

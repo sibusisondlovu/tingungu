@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Tingungu', style: TextStyle(color: Colors.white)),
         centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Constants.primaryColor,
         actions: const [
           Padding(
@@ -341,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Giving'),
             onTap: () {
               Navigator.pop(context);
-              // TODO: Navigate to Giving screen
+              Navigator.pushNamed(context, 'givingScreen');
             },
           ),
           ListTile(

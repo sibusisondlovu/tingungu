@@ -61,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         setState(() => _isLoading = false);
 
+        Navigator.pushNamedAndRemoveUntil(context, 'homeScreen', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text("✅ Account created successfully!"),
@@ -68,9 +69,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             duration: const Duration(seconds: 3),
           ),
         );
-
-        Navigator.pushReplacementNamed(context, 'homeScreen');
-
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);
 
