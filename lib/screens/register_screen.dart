@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../utils/constants.dart';
+import 'home_screen.dart';
 import 'terms_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -46,7 +47,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         final uid = userCredential.user?.uid;
 
-        // ✅ Save user data in Firestore
         await _firestore.collection('users').doc(uid).set({
           'name': _nameController.text.trim().isEmpty
               ? 'no-data-provided'
@@ -57,17 +57,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'society': 'no-data-provided',
         });
 
-        if (!mounted) return;
 
-        setState(() => _isLoading = false);
-
-        Navigator.pushNamedAndRemoveUntil(context, 'homeScreen', (route) => false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text("✅ Account created successfully!"),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
           ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);

@@ -40,10 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Constants.primaryColor,
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.notification_add, color: Colors.white),
+            padding: const EdgeInsets.all(8.0),
+            child: InkWell(
+                onTap: (){
+                  _navigateTo('Notices Page');
+                },
+                child: const Icon(Icons.notification_add, color: Colors.white)),
           ),
         ],
       ),
@@ -344,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('About Tingungu'),
             onTap: () {
               Navigator.pop(context);
-              // TODO: Navigate to About screen
+              _navigateTo('Navigate to About Tingungu Page');
             },
           ),
           const Spacer(),
@@ -379,8 +383,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-
 
   void _showEventDetailsDialog({
     required String title,
