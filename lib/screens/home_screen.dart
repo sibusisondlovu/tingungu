@@ -1,252 +1,343 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:tingungu_app/screens/buy_airtime_screen.dart';
-import 'package:tingungu_app/screens/giving_page.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../utils/constants.dart';
-import 'profile_screen.dart';
+import '../data/church_event_model.dart';
+import '../data/scripture_model.dart';
+import '../data/sermon_model.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-  static const String id = 'homeScreen';
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void _launchSermon(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open sermon video.')),
-      );
-    }
-  }
+  final String userName = 'John';
+  final String timeGreeting = 'Good Morning';
+
+  final Scripture dailyScripture = Scripture(
+    text:
+    '"For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope."',
+    reference: 'Jeremiah 29:11',
+    translation: 'ESV',
+  );
+
+  final List<Sermon> sermons = [
+    Sermon(
+      title: 'The Power of Faith',
+      speaker: 'Pastor David',
+      duration: '45 min',
+      date: 'Nov 3, 2024',
+    ),
+    Sermon(
+      title: 'Walking in Grace',
+      speaker: 'Pastor Sarah',
+      duration: '38 min',
+      date: 'Oct 27, 2024',
+    ),
+    Sermon(
+      title: 'God\'s Unending Love',
+      speaker: 'Pastor Michael',
+      duration: '52 min',
+      date: 'Oct 20, 2024',
+    ),
+  ];
+
+  final List<ChurchEvent> events = [
+    ChurchEvent(
+      title: 'Sunday Service',
+      date: 'Nov 10, 2024',
+      time: '9:00 AM',
+      location: 'Main Hall',
+    ),
+    ChurchEvent(
+      title: 'Youth Group Meeting',
+      date: 'Nov 12, 2024',
+      time: '6:00 PM',
+      location: 'Fellowship Room',
+    ),
+    ChurchEvent(
+      title: 'Bible Study',
+      date: 'Nov 15, 2024',
+      time: '7:30 PM',
+      location: 'Online',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tingungu', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Constants.primaryColor,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-                onTap: (){
-                  _navigateTo('Notices Page');
-                },
-                child: const Icon(Icons.notification_add, color: Colors.white)),
-          ),
-        ],
-      ),
+      key: _scaffoldKey,
       drawer: _buildDrawer(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
+      backgroundColor: const Color(0xFFFAF9F6),
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Welcome 👋,',
-                style: TextStyle(
-                  color: Constants.primaryColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              _buildTopBar(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildGreeting(),
+                    const SizedBox(height: 24),
+                    _buildScriptureCard(),
+                    const SizedBox(height: 28),
+                    _buildMarketplace(),
+                    const SizedBox(height: 28),
+                    _buildSermonsSection(),
+                    const SizedBox(height: 28),
+                    _buildEventsSection(),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
-             // _activateAccount(),
-              const SizedBox(height: 20),
-              _dailyVerseCard(),
-              const SizedBox(height: 20),
-              const Text(
-                'Marketplace',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Constants.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buySellCard(),
-              const SizedBox(height: 20),
-              const Text(
-                'Latest Sermons',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Constants.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _latestSermonCard(),
-              const SizedBox(height: 20),
-              const Text(
-                'Upcoming Event',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Constants.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _latestEventCard(),
-              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  Widget _activateAccount() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      padding: const EdgeInsets.all(10),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Constants.ascentColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildTopBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'Your account is not yet activated!',
-            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
-          const Text(
-            'Please activate your account to access all features. Check your email for activation link',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13.0),
-          ),
-          const SizedBox(height: 10.0),
-          ElevatedButton(
-            onPressed: () {
-              //TODO resend activation email
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Constants.primaryColor,
+          GestureDetector(
+            onTap: () => _scaffoldKey.currentState?.openDrawer(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.menu, color: Color(0xFF2C2C2C)),
             ),
-            child: const Text('RE-SEND EMAIL'),
+          ),
+          const Text(
+            'Tingungu',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Badge(
+              label: const Text('3'),
+              child: const Icon(Icons.notifications_outlined,
+                  color: Color(0xFF2C2C2C)),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _dailyVerseCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      padding: const EdgeInsets.all(16),
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        image: const DecorationImage(
-          image: AssetImage('assets/images/logo.png'),
-          alignment: Alignment.bottomRight,
+  Widget _buildGreeting() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$timeGreeting, $userName! 👋',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2C2C2C),
+          ),
         ),
-        color: Constants.ascentColor,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            'Scripture of the Day',
-            style: TextStyle(color: Colors.white, fontSize: 14),
+        const SizedBox(height: 4),
+        Text(
+          'Welcome to your spiritual journey',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
           ),
-          SizedBox(height: 8),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScriptureCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD4AF85).withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4AF85),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Daily Scripture',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF8B7355),
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Text(
-            '"I can do all things through Christ who strengthens me."\n– Philippians 4:13',
-            style: TextStyle(color: Colors.white),
+            dailyScripture.text,
+            style: const TextStyle(
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              color: Color(0xFF2C2C2C),
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                dailyScripture.reference,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFD4AF85),
+                ),
+              ),
+              Text(
+                dailyScripture.translation,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buySellCard() {
-    return Card(
-      color: Constants.ascentColor.withOpacity(0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
+  Widget _buildMarketplace() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Marketplace',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2C2C2C),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('This feature is not enabled in this version. Coming Soon!'),
-                      action: SnackBarAction(
-                        label: 'Dismiss',
-                        textColor: Colors.white,
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        },
-                      ),
-                      backgroundColor: Constants.ascentColor,
-                      behavior: SnackBarBehavior.floating,
-                      duration: const Duration(seconds: 4),
-                    ),
-                  );
-                }, // Navigate to Sell Page
-                child: Card(
-                  color: Constants.primaryColor.withOpacity(0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: Column(
-                      children: const [
-                        Icon(Icons.storefront, size: 32, color: Colors.white),
-                        SizedBox(height: 8),
-                        Text("Sell", style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-                  ),
-                ),
+              child: _buildMarketplaceCard(
+                icon: Icons.shopping_cart_outlined,
+                label: 'Buy',
+                color: const Color(0xFF5B8FA3),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  _showBuyOptions();
-                }, // Navigate to Buy Page
-                child: Card(
-                  color: Constants.primaryColor.withOpacity(0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: Column(
-                      children: const [
-                        Icon(Icons.shopping_cart, size: 32, color: Colors.white),
-                        SizedBox(height: 8),
-                        Text("Buy", style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
-                  ),
-                ),
+              child: _buildMarketplaceCard(
+                icon: Icons.local_offer_outlined,
+                label: 'Sell',
+                color: const Color(0xFFD4AF85),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMarketplaceCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        if (label == 'Buy') {
+          _showBuyBottomSheet();
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2C2C2C),
               ),
             ),
           ],
@@ -255,64 +346,187 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _latestSermonCard() {
-    final sermons = [
-      {
-        'title': 'Faith Over Fear',
-        'date': 'June 1, 2025',
-        'url': 'https://www.youtube.com/watch?v=VIDEO_ID1',
-      },
-      {
-        'title': 'The Power of Prayer',
-        'date': 'May 25, 2025',
-        'url': 'https://www.youtube.com/watch?v=VIDEO_ID2',
-      },
-      {
-        'title': 'Walking in Grace',
-        'date': 'May 18, 2025',
-        'url': 'https://www.youtube.com/watch?v=VIDEO_ID3',
-      },
-    ];
-
-    return Card(
-      color: Constants.ascentColor.withOpacity(0.1),
-      child: Column(
-        children: sermons.map((sermon) {
-          return Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.play_circle_fill, color: Constants.primaryColor),
-                title: Text(sermon['title']!),
-                subtitle: Text(sermon['date']!),
-                onTap: () => _launchSermon(sermon['url']!),
+  Widget _buildSermonsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Recent Sermons',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C2C2C),
               ),
-              if (sermon != sermons.last) const Divider(),
-            ],
-          );
-        }).toList(),
+            ),
+            Text(
+              'See all',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFFD4AF85),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...sermons.map((sermon) => _buildSermonTile(sermon)).toList(),
+      ],
+    );
+  }
+
+  Widget _buildSermonTile(Sermon sermon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFF5B8FA3).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(Icons.play_circle_outline,
+              color: Color(0xFF5B8FA3), size: 24),
+        ),
+        title: Text(
+          sermon.title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2C2C2C),
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              '${sermon.speaker} • ${sermon.duration}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+        trailing: Text(
+          sermon.date,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[500],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _latestEventCard() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Constants.ascentColor.withOpacity(0.5),
-      child: ListTile(
-        title: const Text(
-          "Youth Revival Night",
-          style: TextStyle(fontWeight: FontWeight.bold),
+  Widget _buildEventsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Upcoming Events',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C2C2C),
+              ),
+            ),
+            Text(
+              'See all',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFFD4AF85),
+              ),
+            ),
+          ],
         ),
-        subtitle: const Text("Sat, June 15 · 6:00 PM"),
-        trailing: const Icon(Icons.event),
-        onTap: () {
-          _showEventDetailsDialog(
-            title: "Youth Revival Night",
-            date: "Saturday, June 15, 2025",
-            description:
-            "Join us for a powerful night of worship, testimonies, and revival hosted by the Methodist Church Youth. All societies welcome. Starts at 6 PM sharp!",
-          );
-        },
+        const SizedBox(height: 12),
+        ...events.map((event) => _buildEventCard(event)).toList(),
+      ],
+    );
+  }
+
+  Widget _buildEventCard(ChurchEvent event) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color(0xFFD4AF85).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.calendar_today,
+                color: Color(0xFFD4AF85), size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${event.date} • ${event.time}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  event.location,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        ],
       ),
     );
   }
@@ -321,183 +535,259 @@ class _HomeScreenState extends State<HomeScreen> {
     return Drawer(
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.card_giftcard),
-            title: const Text('Giving'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => GivingPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About Tingungu'),
-            onTap: () {
-              Navigator.pop(context);
-              _navigateTo('Navigate to About Tingungu Page');
-            },
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Log out logic
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(45),
-              ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Log Out'),
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFFD4AF85),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.person, color: Colors.white),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Welcome',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Version 1.0.0',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _drawerItem('About Tingungu', Icons.info_outline),
+                _drawerItem('Media', Icons.play_circle_outline),
+                _drawerItem('Events', Icons.calendar_today),
+                _drawerItem('Give', Icons.favorite_outline),
+                _drawerItem('Settings', Icons.settings),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Powered by Jaspa',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4AF85),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
   }
 
-  void _showEventDetailsDialog({
-    required String title,
-    required String date,
-    required String description,
-  }) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Constants.primaryColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  date,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.primaryColor,
-                  ),
-                  child: const Text('Dismiss'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  Widget _drawerItem(String title, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: const Color(0xFFD4AF85)),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: () => Navigator.pop(context),
     );
   }
 
+  Widget _buildBottomNav() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        selectedItemColor: const Color(0xFFD4AF85),
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.card_giftcard_outlined),
+            activeIcon: Icon(Icons.card_giftcard),
+            label: 'Litage',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_outlined),
+            activeIcon: Icon(Icons.event),
+            label: 'Events',
+          ),
+        ],
+      ),
+    );
+  }
 
-  void _showBuyOptions() {
+  void _showBuyBottomSheet() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.store),
-              title: const Text('Tingungu Store'),
-              onTap: () {
-                Navigator.pop(context);
-                _navigateTo('Tingungu Store');
-              },
+      backgroundColor: const Color(0xFFFAF9F6),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 4,
+            width: 40,
+            margin: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
             ),
-            ListTile(
-              leading: const Icon(Icons.phone_android),
-              title: const Text('Buy Airtime'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const BuyAirtimeScreen()),
-                );
-              },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'What would you like to buy?',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildBuyOption(
+                  title: 'Marketplace',
+                  description: 'Buy goods and products from church members',
+                  icon: Icons.shopping_bag_outlined,
+                  color: const Color(0xFF5B8FA3),
+                ),
+                const SizedBox(height: 12),
+                _buildBuyOption(
+                  title: 'Value Added Services',
+                  description:
+                  'Buy electricity, airtime, and other digital products',
+                  icon: Icons.bolt_outlined,
+                  color: const Color(0xFFD4AF85),
+                ),
+                const SizedBox(height: 12),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.flash_on),
-              title: const Text('Buy Electricity'),
-              onTap: () {
-                Navigator.pop(context);
-                _navigateTo('Buy Electricity');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.wifi),
-              title: const Text('Buy Data'),
-              onTap: () {
-                Navigator.pop(context);
-                _navigateTo('Buy Data');
-              },
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 
-  void _navigateTo(String type) {
-    // TODO: Replace with actual navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Navigate to $type page')),
+  Widget _buildBuyOption({
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Opening $title'),
+            backgroundColor: color,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.arrow_forward_ios, color: color, size: 18),
+          ],
+        ),
+      ),
     );
   }
 

@@ -18,8 +18,6 @@ class RouteGenerator {
       case Splash.id:
         return _route(const Splash());
 
-      case HomeScreen.id:
-        return _route(const HomeScreen());
 
       case BuyAirtimeScreen.id:
         return _route(const BuyAirtimeScreen());
