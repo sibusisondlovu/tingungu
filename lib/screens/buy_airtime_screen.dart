@@ -79,135 +79,262 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFAF9F6),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Constants.primaryColor,
-        iconTheme: IconThemeData(color: Colors.white), // makes the back icon white
-        title: Text(
+        backgroundColor: const Color(0xFFD4AF85),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
           'Buy Airtime',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               const Text(
                 'Phone Number',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF2C2C2C),
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Enter phone number',
-                  border: OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFD4AF85),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.grey[300]!,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFD4AF85),
+                      width: 2,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
                 validator: (value) =>
-                value == null || value.length < 10 ? 'Enter a valid number' : null,
+                value == null || value.length < 10
+                    ? 'Enter a valid number'
+                    : null,
               ),
-              const SizedBox(height: 20),
-
+              const SizedBox(height: 24),
+              const Text(
+                'Select Network',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedNetwork,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey[300]!,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.grey[300]!,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  items: _networks
+                      .map((network) =>
+                      DropdownMenuItem(
+                        value: network,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD4AF85),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              network,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedNetwork = value);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
               const Text(
                 'Amount (R)',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF2C2C2C),
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Enter amount',
-                  border: OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFD4AF85),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.grey[300]!,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFD4AF85),
+                      width: 2,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
                 validator: (value) =>
                 value == null || value.isEmpty ? 'Amount required' : null,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               Wrap(
                 spacing: 10,
+                runSpacing: 10,
                 children: _quickAmounts.map((amt) {
-                  return ChoiceChip(
+                  bool isSelected = _amountController.text == amt;
+                  return FilterChip(
                     label: Text('R$amt'),
-                    selected: _amountController.text == amt,
+                    selected: isSelected,
                     onSelected: (_) {
                       setState(() {
                         _amountController.text = amt;
                       });
                     },
+                    backgroundColor: Colors.white,
+                    selectedColor: const Color(0xFFD4AF85).withOpacity(0.2),
+                    side: BorderSide(
+                      color: isSelected
+                          ? const Color(0xFFD4AF85)
+                          : Colors.grey[300]!,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? const Color(0xFFD4AF85)
+                          : const Color(0xFF2C2C2C),
+                      fontWeight: FontWeight.w600,
+                    ),
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 20),
-
-              const Text(
-                'Select Network',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: _selectedNetwork,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 40),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD4AF85).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                items: _networks
-                    .map((network) => DropdownMenuItem(
-                  value: network,
-                  child: Text(network),
-                ))
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedNetwork = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PayFastWebView(
-                          formData: {
-                            'merchant_id': '10000100',
-                            'merchant_key': '46f0cd694581a',
-                            'return_url': 'https://www.example.com/success',
-                            'cancel_url': 'https://www.example.com/cancel',
-                            'notify_url': 'https://www.example.com/notify',
-                            'name_first': 'John',
-                            'name_last': 'Doe',
-                            'm_payment_id': '01AB',
-                            'amount': '100.00',
-                            'item_name': 'Test Item',
-                            'item_description': 'A test product',
-                            'custom_int1': '2',
-                            'custom_str1': 'Extra order information',
-                            'email_address': 'john@doe.com',
-                            'cell_number': '0823456789',
-                          },
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Processing payment: R${_amountController
+                                .text} to $_selectedNetwork on ${_phoneController
+                                .text}',
+                          ),
+                          backgroundColor: const Color(0xFFD4AF85),
+                          duration: const Duration(seconds: 3),
                         ),
-                      ),
-                    );
-                    // await saveGiving();
-                    // 👉 Will add PayFast integration here
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: const Color(0xFFD4AF85),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text(
-                    'Buy Now',
-                    style: TextStyle(fontSize: 16),
+                    'Proceed to Payment',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

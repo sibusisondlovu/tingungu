@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/church_event_model.dart';
 import '../data/scripture_model.dart';
 import '../data/sermon_model.dart';
+import 'buy_airtime_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final Scripture dailyScripture = Scripture(
     text:
-    '"For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope."',
+        '"For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope."',
     reference: 'Jeremiah 29:11',
     translation: 'ESV',
   );
@@ -79,7 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildTopBar(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -151,8 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Badge(
               label: const Text('3'),
-              child: const Icon(Icons.notifications_outlined,
-                  color: Color(0xFF2C2C2C)),
+              child: const Icon(
+                Icons.notifications_outlined,
+                color: Color(0xFF2C2C2C),
+              ),
             ),
           ),
         ],
@@ -175,10 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 4),
         Text(
           'Welcome to your spiritual journey',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
       ],
     );
@@ -248,10 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Text(
                 dailyScripture.translation,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ],
           ),
@@ -400,8 +400,11 @@ class _HomeScreenState extends State<HomeScreen> {
             color: const Color(0xFF5B8FA3).withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.play_circle_outline,
-              color: Color(0xFF5B8FA3), size: 24),
+          child: const Icon(
+            Icons.play_circle_outline,
+            color: Color(0xFF5B8FA3),
+            size: 24,
+          ),
         ),
         title: Text(
           sermon.title,
@@ -417,19 +420,13 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Text(
               '${sermon.speaker} • ${sermon.duration}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
         trailing: Text(
           sermon.date,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[500],
-          ),
+          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
         ),
       ),
     );
@@ -490,8 +487,11 @@ class _HomeScreenState extends State<HomeScreen> {
               color: const Color(0xFFD4AF85).withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.calendar_today,
-                color: Color(0xFFD4AF85), size: 24),
+            child: const Icon(
+              Icons.calendar_today,
+              color: Color(0xFFD4AF85),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -509,18 +509,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${event.date} • ${event.time}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   event.location,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[500],
-                  ),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                 ),
               ],
             ),
@@ -536,9 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFFD4AF85),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFFD4AF85)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -604,10 +596,7 @@ class _HomeScreenState extends State<HomeScreen> {
       leading: Icon(icon, color: const Color(0xFFD4AF85)),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       onTap: () => Navigator.pop(context),
     );
@@ -698,14 +687,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   description: 'Buy goods and products from church members',
                   icon: Icons.shopping_bag_outlined,
                   color: const Color(0xFF5B8FA3),
+                  onTap: () {},
                 ),
                 const SizedBox(height: 12),
                 _buildBuyOption(
                   title: 'Value Added Services',
                   description:
-                  'Buy electricity, airtime, and other digital products',
+                      'Buy electricity, airtime, and other digital products',
                   icon: Icons.bolt_outlined,
                   color: const Color(0xFFD4AF85),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showVASBottomSheet();
+                  },
                 ),
                 const SizedBox(height: 12),
               ],
@@ -716,23 +710,128 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBuyOption({
+  void _showVASBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: const Color(0xFFFAF9F6),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 4,
+            width: 40,
+            margin: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'What do you need?',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+                const Text(
+                  'Choose a service to purchase',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                _buildVASOption(
+                  title: 'Airtime',
+                  description: 'Top up airtime for any network',
+                  icon: Icons.phone_outlined,
+                  color: const Color(0xFF5B8FA3),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BuyAirtimeScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildVASOption(
+                  title: 'Data',
+                  description: 'Purchase data bundles',
+                  icon: Icons.wifi_outlined,
+                  color: const Color(0xFF6C9BA8),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Opening Data Purchase'),
+                        backgroundColor: Color(0xFF6C9BA8),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildVASOption(
+                  title: 'Electricity',
+                  description: 'Buy electricity tokens',
+                  icon: Icons.bolt_outlined,
+                  color: const Color(0xFFD4AF85),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Opening Electricity Purchase'),
+                        backgroundColor: Color(0xFFD4AF85),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildVASOption(
+                  title: 'Voucher',
+                  description: 'Purchase gift and scratch vouchers',
+                  icon: Icons.card_giftcard_outlined,
+                  color: const Color(0xFF8B7355),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Opening Voucher Purchase'),
+                        backgroundColor: Color(0xFF8B7355),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVASOption({
     required String title,
     required String description,
     required IconData icon,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Opening $title'),
-            backgroundColor: color,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -791,4 +890,70 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildBuyOption({
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.arrow_forward_ios, color: color, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
 }
