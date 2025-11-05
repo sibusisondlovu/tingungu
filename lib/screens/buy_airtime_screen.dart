@@ -75,6 +75,355 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
     }
   }
 
+  void _showPaymentMethodSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: const Color(0xFFFAF9F6),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 4,
+            width: 40,
+            margin: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Choose Payment Method',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+                Text(
+                  'Select how you would like to pay',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildPaymentMethodCard(
+                  title: 'Tingungu Wallet',
+                  description: 'Use your Tingungu wallet balance',
+                  icon: Icons.account_balance_wallet_outlined,
+                  color: const Color(0xFF5B8FA3),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _processWalletPayment();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildPaymentMethodCard(
+                  title: 'Bank Card',
+                  description: 'Pay securely via PayFast',
+                  icon: Icons.credit_card_outlined,
+                  color: const Color(0xFFD4AF85),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _processBankCardPayment();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildPaymentMethodCard(
+                  title: 'Voucher',
+                  description: 'Redeem a Tingungu voucher code',
+                  icon: Icons.local_offer_outlined,
+                  color: const Color(0xFF8B7355),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showVoucherInputSheet();
+                  },
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _processWalletPayment() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF5B8FA3).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: const Icon(
+                Icons.account_balance_wallet,
+                color: Color(0xFF5B8FA3),
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Processing Payment',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'R${_amountController.text} from your wallet',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  const Color(0xFF5B8FA3).withOpacity(0.8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✓ Payment successful! Airtime will be added shortly.'),
+          backgroundColor: Color(0xFF5B8FA3),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    });
+  }
+
+  void _processBankCardPayment() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Redirecting to PayFast...'),
+        backgroundColor: Color(0xFFD4AF85),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showVoucherInputSheet() {
+    final TextEditingController voucherController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: const Color(0xFFFAF9F6),
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 4,
+              width: 40,
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Redeem Voucher',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  Text(
+                    'Enter your voucher code to proceed',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Voucher Code',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: voucherController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter voucher code',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF8B7355),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.grey[300]!,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF8B7355),
+                          width: 2,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (voucherController.text.isNotEmpty) {
+                          Navigator.pop(context);
+                          _processVoucherPayment(voucherController.text);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B7355),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Redeem Voucher',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _processVoucherPayment(String voucherCode) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B7355).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: const Icon(
+                Icons.local_offer,
+                color: Color(0xFF8B7355),
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Validating Voucher',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              voucherCode,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  const Color(0xFF8B7355).withOpacity(0.8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✓ Voucher redeemed! Airtime added to your account.'),
+          backgroundColor: Color(0xFF8B7355),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -303,17 +652,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Processing payment: R${_amountController
-                                .text} to $_selectedNetwork on ${_phoneController
-                                .text}',
-                          ),
-                          backgroundColor: const Color(0xFFD4AF85),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
+                      _showPaymentMethodSheet();
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -341,4 +680,72 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
       ),
     );
   }
+
+  Widget _buildPaymentMethodCard({
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(Icons.arrow_forward_ios, color: color, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+
 }
