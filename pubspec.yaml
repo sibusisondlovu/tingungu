@@ -22,6 +22,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   webview_flutter:
   http: ^1.2.0
+  mysql1:
 
 dev_dependencies:
   flutter_test:
