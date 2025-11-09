@@ -2,14 +2,11 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'config_service.dart';
+
 
 class PurchaseAirtimeService {
-  static const String _baseUrl = 'https://api-flashswitch-sandbox.flash-group.com';
-  static const String _accountNumber = '3538-3478-8620-0385';
-
-  Future<String> _getAccessToken() async {
-    return 'e9f82b7e-8d92-3b96-9a9e-4337c945a17f';
-  }
+  final ConfigService _configService = ConfigService();
 
   Future<Map<String, dynamic>> purchaseAirtime({
     required int productCode,
@@ -17,17 +14,26 @@ class PurchaseAirtimeService {
     required String mobileNumber,
   }) async {
     try {
-      final reference = FirebaseFirestore.instance.collection('transactions').doc().id;
-      final token = await _getAccessToken();
+      final config = await _configService.getConfig();
 
-      final url = Uri.parse('$_baseUrl/aggregation/4.0/cellular/pinless/purchase');
+      if (config == null || !config.isValid()) {
+        return {
+          'success': false,
+          'message': 'Configuration not available',
+          'description': 'Unable to retrieve API configuration'
+        };
+      }
+
+      final reference = FirebaseFirestore.instance.collection('transactions').doc().id;
+
+      final url = Uri.parse('${config.baseUrl}/aggregation/4.0/cellular/pinless/purchase');
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer ${config.token}',
       };
       final body = jsonEncode({
         "reference": reference,
-        "accountNumber": _accountNumber,
+        "accountNumber": config.accountNumber,
         "amount": amount,
         "productCode": productCode,
         "mobileNumber": mobileNumber
@@ -71,11 +77,12 @@ class PurchaseAirtimeService {
           };
         }
       } else if (response.statusCode == 401) {
+        _configService.clearCache();
         return {
           'success': false,
           'statusCode': 401,
           'message': 'Access failure for API',
-          'description': 'Invalid Credentials. Make sure you have given the correct access token'
+          'description': 'Invalid Credentials. Token may have expired'
         };
       } else {
         return {

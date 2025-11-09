@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/purchase_airtime_service.dart';
 import '../utils/constants.dart';
 import 'payfast_page.dart';
 
 class BuyAirtimeScreen extends StatefulWidget {
   const BuyAirtimeScreen({super.key});
 
-  static const String id ="buyAirTineScreen";
+  static const String id = "buyAirTineScreen";
   @override
   State<BuyAirtimeScreen> createState() => _BuyAirtimeScreenState();
 }
@@ -19,6 +20,13 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
 
   String _selectedNetwork = 'MTN';
   final List<String> _networks = ['MTN', 'Vodacom', 'Cell C', 'Telkom'];
+
+  final Map<String, int> _networkProductCodes = {
+    'MTN': 101,
+    'Vodacom': 102,
+    'Cell C': 103,
+    'Telkom': 104,
+  };
 
   final List<String> _quickAmounts = ['10', '20', '50', '100'];
 
@@ -157,7 +165,12 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
     );
   }
 
-  void _processWalletPayment() {
+  void _processWalletPayment() async {
+    final airtimeService = PurchaseAirtimeService();
+    final productCode = _networkProductCodes[_selectedNetwork] ?? 101;
+    final amount = int.tryParse(_amountController.text) ?? 0;
+    final mobileNumber = _phoneController.text;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -212,16 +225,48 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
       ),
     );
 
-    Future.delayed(const Duration(seconds: 3), () {
+    try {
+      final result = await airtimeService.purchaseAirtime(
+        productCode: productCode,
+        amount: amount,
+        mobileNumber: mobileNumber,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✓ ${result['responseMessage'] ?? 'Payment successful! Airtime will be added shortly.'}',
+            ),
+            backgroundColor: const Color(0xFF5B8FA3),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✗ ${result['message'] ?? 'Payment failed'}',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✓ Payment successful! Airtime will be added shortly.'),
-          backgroundColor: Color(0xFF5B8FA3),
-          duration: Duration(seconds: 3),
+        SnackBar(
+          content: Text('✗ Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
-    });
+    }
   }
 
   void _processBankCardPayment() {
@@ -356,7 +401,12 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
     );
   }
 
-  void _processVoucherPayment(String voucherCode) {
+  void _processVoucherPayment(String voucherCode) async {
+    final airtimeService = PurchaseAirtimeService();
+    final productCode = _networkProductCodes[_selectedNetwork] ?? 101;
+    final amount = int.tryParse(_amountController.text) ?? 0;
+    final mobileNumber = _phoneController.text;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -412,18 +462,49 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
       ),
     );
 
-    Future.delayed(const Duration(seconds: 3), () {
+    try {
+      final result = await airtimeService.purchaseAirtime(
+        productCode: productCode,
+        amount: amount,
+        mobileNumber: mobileNumber,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✓ ${result['responseMessage'] ?? 'Voucher redeemed! Airtime added to your account.'}',
+            ),
+            backgroundColor: const Color(0xFF8B7355),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✗ ${result['message'] ?? 'Voucher redemption failed'}',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✓ Voucher redeemed! Airtime added to your account.'),
-          backgroundColor: Color(0xFF8B7355),
-          duration: Duration(seconds: 3),
+        SnackBar(
+          content: Text('✗ Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
-    });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -534,29 +615,28 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     ),
                   ),
                   items: _networks
-                      .map((network) =>
-                      DropdownMenuItem(
-                        value: network,
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD4AF85),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              network,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                      .map((network) => DropdownMenuItem(
+                    value: network,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD4AF85),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
                         ),
-                      ))
+                        const SizedBox(width: 12),
+                        Text(
+                          network,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -747,5 +827,4 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
       ),
     );
   }
-
 }

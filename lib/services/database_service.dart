@@ -11,8 +11,13 @@ class DatabaseService {
   static MySqlConnection? _connection;
 
   Future<MySqlConnection> _getConnection() async {
-    if (_connection != null && _connection!.connected) {
-      return _connection!;
+    if (_connection != null) {
+      try {
+        await _connection!.query('SELECT 1');
+        return _connection!;
+      } catch (e) {
+        _connection = null;
+      }
     }
 
     final settings = ConnectionSettings(
@@ -35,7 +40,8 @@ class DatabaseService {
       );
 
       if (results.isNotEmpty) {
-        return results.first['token'] as String?;
+        final row = results.first;
+        return row['token']?.toString();
       }
       return null;
     } catch (e) {
@@ -56,8 +62,8 @@ class DatabaseService {
       if (results.isNotEmpty) {
         final row = results.first;
         return {
-          'baseUrl': row['baseUrl'] as String?,
-          'accountNumber': row['account_number'] as String?,
+          'baseUrl': row['baseUrl']?.toString(),
+          'accountNumber': row['account_number']?.toString(),
         };
       }
       return {'baseUrl': null, 'accountNumber': null};
@@ -70,7 +76,14 @@ class DatabaseService {
   }
 
   Future<void> close() async {
-    await _connection?.close();
-    _connection = null;
+    try {
+      await _connection?.close();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error closing connection: $e');
+      }
+    } finally {
+      _connection = null;
+    }
   }
 }
