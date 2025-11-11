@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 import '../data/church_event_model.dart';
 import '../data/scripture_model.dart';
 import '../data/sermon_model.dart';
 import 'buy_airtime_screen.dart';
+import '../services/scripture_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,17 +18,101 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  Scripture? dailyScripture;
+  bool _isLoadingScripture = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final String userName = 'John';
-  final String timeGreeting = 'Good Morning';
+  String userName = 'Guest';
+  String userEmail = '';
+  String userPhone = '';
+  String userAvatar = '';
+  String timeGreeting = 'Good Morning';
 
-  final Scripture dailyScripture = Scripture(
-    text:
-        '"For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope."',
-    reference: 'Jeremiah 29:11',
-    translation: 'ESV',
-  );
+  bool _isLoadingProfile = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+    _loadDailyScripture();
+  }
+
+  Future<void> _loadDailyScripture() async {
+    try {
+      final scripture = await ScriptureService.getRandomScripture();
+      setState(() {
+        dailyScripture = scripture;
+        _isLoadingScripture = false;
+      });
+    } catch (e) {
+      print('Error loading scripture: $e');
+      setState(() {
+        _isLoadingScripture = false;
+      });
+    }
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userJson = prefs.getString('user_profile');
+
+      if (userJson != null) {
+        // Load from SharedPreferences
+        final userData = jsonDecode(userJson);
+        setState(() {
+          userName = userData['name'] ?? 'Guest';
+          userEmail = userData['email'] ?? '';
+          userPhone = userData['phone'] ?? '';
+          userAvatar = userData['avatar'] ?? '';
+          _isLoadingProfile = false;
+        });
+      } else {
+        // Load from Firestore
+        await _loadFromFirestore();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading profile: $e');
+      }
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Future<void> _loadFromFirestore() async {
+    try {
+      final userId = 'current_user_id'; // Replace with actual user ID from auth
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (doc.exists) {
+        final userData = doc.data() ?? {};
+        setState(() {
+          userName = userData['name'] ?? 'Guest';
+          userEmail = userData['email'] ?? '';
+          userPhone = userData['phone'] ?? '';
+          userAvatar = userData['avatar'] ?? '';
+        });
+
+        // Save to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_profile', jsonEncode(userData));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading from Firestore: $e');
+      }
+    } finally {
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
 
   final List<Sermon> sermons = [
     Sermon(
@@ -70,6 +158,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingProfile) {
+
+
+
+      return Scaffold(
+        backgroundColor: const Color(0xFFFAF9F6),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading your profile...',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: _buildDrawer(),
@@ -188,6 +303,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildScriptureCard() {
+    if (dailyScripture == null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD4AF85).withOpacity(0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+          ),
+        ),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -228,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            dailyScripture.text,
+            dailyScripture!.text,
             style: const TextStyle(
               fontSize: 16,
               fontStyle: FontStyle.italic,
@@ -242,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                dailyScripture.reference,
+                dailyScripture!.reference,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -250,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Text(
-                dailyScripture.translation,
+                dailyScripture!.translation,
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ],
@@ -542,12 +679,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.person, color: Colors.white),
+                  child: userAvatar.isNotEmpty
+                      ? CircleAvatar(
+                    backgroundImage: NetworkImage(userAvatar),
+                  )
+                      : const Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Welcome',
-                  style: TextStyle(
+                Text(
+                  userName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -573,7 +714,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('user_profile');
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                },
                 icon: const Icon(Icons.logout),
                 label: const Text('Logout'),
                 style: ElevatedButton.styleFrom(
@@ -693,7 +840,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildBuyOption(
                   title: 'Value Added Services',
                   description:
-                      'Buy electricity, airtime, and other digital products',
+                  'Buy electricity, airtime, and other digital products',
                   icon: Icons.bolt_outlined,
                   color: const Color(0xFFD4AF85),
                   onTap: () {
@@ -889,8 +1036,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-
 
   Widget _buildBuyOption({
     required String title,

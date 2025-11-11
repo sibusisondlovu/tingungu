@@ -6,7 +6,7 @@ import '../data/api_config.dart';
 
 
 class ConfigService {
-  static const String configUrl = 'http://localhost:8000/api/get_config.php';
+  static const String configUrl = 'https://projects.jaspahost.co.za/get_config.php';
   static ApiConfig? _cachedConfig;
   static DateTime? _lastFetchTime;
   static const Duration _cacheDuration = Duration(minutes: 30);
