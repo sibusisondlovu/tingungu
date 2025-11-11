@@ -4,10 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import '../data/church_event_model.dart';
+import '../data/events_service.dart';
 import '../data/scripture_model.dart';
 import '../data/sermon_model.dart';
+import '../data/youtube_model.dart';
 import 'buy_airtime_screen.dart';
 import '../services/scripture_service.dart';
+import 'tingungu_tv_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,11 +33,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _isLoadingProfile = true;
 
+  List<ChurchEvent> events = [];
+  bool _isLoadingEvents = true;
+  List<YoutubeVideo> videos = [];
+  bool _isLoadingVideos = true;
+
+
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
     _loadDailyScripture();
+    _loadUpcomingEvents();
+    _loadTingungutTvVideos();
+  }
+
+  Future<void> _loadTingungutTvVideos() async {
+    try {
+      final youtubeVideos = await YoutubeService.getChannelVideos(maxResults: 5);
+      if (mounted) {
+        setState(() {
+          videos = youtubeVideos;
+          _isLoadingVideos = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingVideos = false;
+        });
+      }
+      if (kDebugMode) {
+        print('Error loading YouTube videos: $e');
+      }
+    }
   }
 
   Future<void> _loadDailyScripture() async {
@@ -113,6 +145,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadUpcomingEvents() async {
+    try {
+      final upcomingEvents = await EventsService.getUpcomingEvents();
+      if (mounted) {
+        setState(() {
+          events = upcomingEvents;
+          _isLoadingEvents = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingEvents = false;
+        });
+      }
+      if (kDebugMode) {
+        print('Error loading events: $e');
+      }
+    }
+  }
+
 
   final List<Sermon> sermons = [
     Sermon(
@@ -135,26 +188,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
-  final List<ChurchEvent> events = [
-    ChurchEvent(
-      title: 'Sunday Service',
-      date: 'Nov 10, 2024',
-      time: '9:00 AM',
-      location: 'Main Hall',
-    ),
-    ChurchEvent(
-      title: 'Youth Group Meeting',
-      date: 'Nov 12, 2024',
-      time: '6:00 PM',
-      location: 'Fellowship Room',
-    ),
-    ChurchEvent(
-      title: 'Bible Study',
-      date: 'Nov 15, 2024',
-      time: '7:30 PM',
-      location: 'Online',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -484,6 +517,83 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSermonsSection() {
+    if (_isLoadingVideos) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Tingungu TV',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TingungtuTvScreen(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'See all',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFD4AF85),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (videos.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tingungu TV',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: Text(
+                'No videos available',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -491,30 +601,40 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Recent Sermons',
+              'Tingungu TV',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF2C2C2C),
               ),
             ),
-            Text(
-              'See all',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFD4AF85),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TingungtuTvScreen(),
+                  ),
+                );
+              },
+              child: Text(
+                'See all',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFD4AF85),
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        ...sermons.map((sermon) => _buildSermonTile(sermon)).toList(),
+        ...videos.map((video) => _buildVideoTile(video)).toList(),
       ],
     );
   }
 
-  Widget _buildSermonTile(Sermon sermon) {
+  Widget _buildVideoTile(YoutubeVideo video) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -528,48 +648,159 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: const Color(0xFF5B8FA3).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.play_circle_outline,
-            color: Color(0xFF5B8FA3),
-            size: 24,
-          ),
-        ),
-        title: Text(
-          sermon.title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2C),
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
           children: [
-            const SizedBox(height: 4),
-            Text(
-              '${sermon.speaker} • ${sermon.duration}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            Stack(
+              children: [
+                Image.network(
+                  video.thumbnailUrl,
+                  width: double.infinity,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 120,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.video_library, size: 40),
+                    );
+                  },
+                ),
+                Positioned(
+                  right: 8,
+                  bottom: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    video.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2C2C2C),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          video.channelTitle,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                      Text(
+                        YoutubeService.formatDate(video.publishedAt),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
-        ),
-        trailing: Text(
-          sermon.date,
-          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
         ),
       ),
     );
   }
 
   Widget _buildEventsSection() {
+    if (_isLoadingEvents) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Upcoming Events',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C2C2C),
+                ),
+              ),
+              Text(
+                'See all',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFD4AF85),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (events.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Upcoming Events',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C2C2C),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: Text(
+                'No upcoming events',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
