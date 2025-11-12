@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'media_video_model.dart';
+import '../data/media_video_model.dart';
 
 class MediaService {
-  static const String _baseUrl = 'https://yourdomain.com/api/media';
+  static const String _baseUrl = 'https://backend.tingungu.co.za';
 
   /// Get latest media videos (for home page)
   static Future<List<MediaVideo>> getLatestVideos({int limit = 5}) async {
@@ -57,7 +57,9 @@ class MediaService {
 
       return [];
     } catch (e) {
-      print('Error fetching all videos: $e');
+      if (kDebugMode) {
+        print('Error fetching all videos: $e');
+      }
       return [];
     }
   }

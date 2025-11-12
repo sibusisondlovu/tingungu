@@ -10,6 +10,8 @@ import '../data/sermon_model.dart';
 import '../data/youtube_model.dart';
 import 'buy_airtime_screen.dart';
 import '../services/scripture_service.dart';
+import 'community_screen.dart';
+import 'media_screen.dart';
 import 'tingungu_tv_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -994,7 +996,31 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          if (index == 1) {
+            // Community page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CommunityScreen(),
+              ),
+            );
+          } else if (index == 2) {
+            // Media page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MediaScreen(),
+              ),
+            );
+          } else if (index == 3) {
+            // Events page
+
+          } else {
+            // Home page
+            setState(() => _currentIndex = index);
+          }
+        },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -1007,14 +1033,14 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
+            icon: Icon(Icons.people_outline),
+            activeIcon: Icon(Icons.people),
             label: 'Community',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard_outlined),
-            activeIcon: Icon(Icons.card_giftcard),
-            label: 'Litage',
+            icon: Icon(Icons.video_library_outlined),
+            activeIcon: Icon(Icons.video_library),
+            label: 'Media',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_outlined),
