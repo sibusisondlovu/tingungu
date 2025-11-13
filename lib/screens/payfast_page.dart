@@ -56,7 +56,7 @@ class _PayFastWebViewState extends State<PayFastWebView> {
           setState(() => pageStatusMessage = 'Error loading page');
         },
         onNavigationRequest: (NavigationRequest request) {
-          // ✅ Detect PayFast redirects for success/cancel
+
           if (request.url.contains('success')) {
             Navigator.pushReplacement(
               context,

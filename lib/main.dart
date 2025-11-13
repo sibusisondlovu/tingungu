@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tingungu_app/splash.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -45,7 +46,7 @@ class _MyAppState extends State<MyApp> {
         fontFamily: 'Poppins',
       ),
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
+      home: const Splash(),
 
     );
   }

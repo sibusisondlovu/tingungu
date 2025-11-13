@@ -12,6 +12,7 @@ import '../services/scripture_service.dart';
 import 'community_screen.dart';
 import 'events_screen.dart';
 import 'media_screen.dart';
+import 'top_up_wallet.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -630,17 +631,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  // asyncfinal result = await Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => const TopUpWalletScreen(),
-                  //   ),
-                  // );
+                   final result = await Navigator.push(
+                     context,
+                     MaterialPageRoute(
+                       builder: (context) => const TopUpWalletScreen(),
+                     ),
+                   );
 
                   // Reload wallet balance if top-up was successful
-                 // if (result == true) {
-                 //   _loadWalletBalance();
-                //  }
+                  if (result == true) {
+                    _loadWalletBalance();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
