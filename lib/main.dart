@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFD4AF85),
+          seedColor: const Color(0xFFff0000),
           brightness: Brightness.light,
         ),
         fontFamily: 'Poppins',

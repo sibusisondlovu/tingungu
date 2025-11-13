@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
-import '../data/church_event_model.dart';
-import '../data/events_service.dart';
+import '../data/event_model.dart';
+
 import '../data/scripture_model.dart';
-import '../data/sermon_model.dart';
-import '../data/youtube_model.dart';
+
 import 'buy_airtime_screen.dart';
 import '../services/scripture_service.dart';
 import 'community_screen.dart';
+import 'events_screen.dart';
 import 'media_screen.dart';
-import 'tingungu_tv_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,10 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _isLoadingProfile = true;
 
-  List<ChurchEvent> events = [];
-  bool _isLoadingEvents = true;
-  List<YoutubeVideo> videos = [];
-  bool _isLoadingVideos = true;
+  double walletBalance = 0.0;
+  bool _isLoadingWallet = true;
 
 
   @override
@@ -46,27 +44,40 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadUserProfile();
     _loadDailyScripture();
-    _loadUpcomingEvents();
-    _loadTingungutTvVideos();
+    _loadWalletBalance();
   }
 
-  Future<void> _loadTingungutTvVideos() async {
+  Future<void> _loadWalletBalance() async {
     try {
-      final youtubeVideos = await YoutubeService.getChannelVideos(maxResults: 5);
+      final prefs = await SharedPreferences.getInstance();
+      final balance = prefs.getDouble('wallet_balance') ?? 0.0;
+
+      // Alternatively, load from Firestore
+      // final userId = 'current_user_id'; // Replace with actual user ID from auth
+      // final doc = await FirebaseFirestore.instance
+      //     .collection('users')
+      //     .doc(userId)
+      //     .get();
+      //
+      // if (doc.exists) {
+      //   final userData = doc.data() ?? {};
+      //   balance = userData['wallet_balance']?.toDouble() ?? 0.0;
+      // }
+
       if (mounted) {
         setState(() {
-          videos = youtubeVideos;
-          _isLoadingVideos = false;
+          walletBalance = balance;
+          _isLoadingWallet = false;
         });
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('Error loading wallet balance: $e');
+      }
       if (mounted) {
         setState(() {
-          _isLoadingVideos = false;
+          _isLoadingWallet = false;
         });
-      }
-      if (kDebugMode) {
-        print('Error loading YouTube videos: $e');
       }
     }
   }
@@ -79,12 +90,15 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoadingScripture = false;
       });
     } catch (e) {
-      print('Error loading scripture: $e');
+      if (kDebugMode) {
+        print('Error loading scripture: $e');
+      }
       setState(() {
         _isLoadingScripture = false;
       });
     }
   }
+
 
   Future<void> _loadUserProfile() async {
     try {
@@ -147,55 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadUpcomingEvents() async {
-    try {
-      final upcomingEvents = await EventsService.getUpcomingEvents();
-      if (mounted) {
-        setState(() {
-          events = upcomingEvents;
-          _isLoadingEvents = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingEvents = false;
-        });
-      }
-      if (kDebugMode) {
-        print('Error loading events: $e');
-      }
-    }
-  }
-
-
-  final List<Sermon> sermons = [
-    Sermon(
-      title: 'The Power of Faith',
-      speaker: 'Pastor David',
-      duration: '45 min',
-      date: 'Nov 3, 2024',
-    ),
-    Sermon(
-      title: 'Walking in Grace',
-      speaker: 'Pastor Sarah',
-      duration: '38 min',
-      date: 'Oct 27, 2024',
-    ),
-    Sermon(
-      title: 'God\'s Unending Love',
-      speaker: 'Pastor Michael',
-      duration: '52 min',
-      date: 'Oct 20, 2024',
-    ),
-  ];
-
-
   @override
   Widget build(BuildContext context) {
     if (_isLoadingProfile) {
-
-
 
       return Scaffold(
         backgroundColor: const Color(0xFFFAF9F6),
@@ -239,13 +207,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _buildGreeting(),
                     const SizedBox(height: 24),
+                    _buildWalletCard(),
+                    const SizedBox(height: 24),
                     _buildScriptureCard(),
                     const SizedBox(height: 28),
                     _buildMarketplace(),
                     const SizedBox(height: 28),
-                    _buildSermonsSection(),
-                    const SizedBox(height: 28),
-                    _buildEventsSection(),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -279,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              child: const Icon(Icons.menu, color: Color(0xFF2C2C2C)),
+              child: const Icon(Icons.menu, color: Color(0xFFFF0000)),
             ),
           ),
           const Text(
@@ -287,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2C2C2C),
+              color: Color(0xFFFF0000),
             ),
           ),
           Container(
@@ -307,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: const Text('3'),
               child: const Icon(
                 Icons.notifications_outlined,
-                color: Color(0xFF2C2C2C),
+                color: Color(0xFFFF0000),
               ),
             ),
           ),
@@ -325,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF2C2C2C),
+            color: Color(0xFFFF0000),
           ),
         ),
         const SizedBox(height: 4),
@@ -404,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(
               fontSize: 16,
               fontStyle: FontStyle.italic,
-              color: Color(0xFF2C2C2C),
+              color: Color(0xFFFF0000),
               height: 1.6,
               fontWeight: FontWeight.w500,
             ),
@@ -441,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF2C2C2C),
+            color: Color(0xFFFF0000),
           ),
         ),
         const SizedBox(height: 16),
@@ -509,388 +476,11 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2C2C2C),
+                color: Color(0xFFFF0000),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSermonsSection() {
-    if (_isLoadingVideos) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Tingungu TV',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C2C2C),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TingungtuTvScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'See all',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFD4AF85),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (videos.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Tingungu TV',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C2C2C),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(
-              child: Text(
-                'No videos available',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Tingungu TV',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C2C2C),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TingungtuTvScreen(),
-                  ),
-                );
-              },
-              child: Text(
-                'See all',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFD4AF85),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ...videos.map((video) => _buildVideoTile(video)).toList(),
-      ],
-    );
-  }
-
-  Widget _buildVideoTile(YoutubeVideo video) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Image.network(
-                  video.thumbnailUrl,
-                  width: double.infinity,
-                  height: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: 120,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.video_library, size: 40),
-                    );
-                  },
-                ),
-                Positioned(
-                  right: 8,
-                  bottom: 8,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    child: const Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2C2C2C),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          video.channelTitle,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                      Text(
-                        YoutubeService.formatDate(video.publishedAt),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventsSection() {
-    if (_isLoadingEvents) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Upcoming Events',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C2C2C),
-                ),
-              ),
-              Text(
-                'See all',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFD4AF85),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (events.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Upcoming Events',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C2C2C),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(
-              child: Text(
-                'No upcoming events',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Upcoming Events',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C2C2C),
-              ),
-            ),
-            Text(
-              'See all',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFD4AF85),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ...events.map((event) => _buildEventCard(event)).toList(),
-      ],
-    );
-  }
-
-  Widget _buildEventCard(ChurchEvent event) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: const Color(0xFFD4AF85).withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.calendar_today,
-              color: Color(0xFFD4AF85),
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C2C2C),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${event.date} • ${event.time}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  event.location,
-                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        ],
       ),
     );
   }
@@ -982,6 +572,119 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildWalletCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFD4AF85), Color(0xFFC19A6B)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD4AF85).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tingungu Wallet',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withOpacity(0.9),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _isLoadingWallet
+                      ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                      : Text(
+                    'R ${walletBalance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // asyncfinal result = await Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const TopUpWalletScreen(),
+                  //   ),
+                  // );
+
+                  // Reload wallet balance if top-up was successful
+                 // if (result == true) {
+                 //   _loadWalletBalance();
+                //  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFFD4AF85),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'TOP UP',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                color: Colors.white.withOpacity(0.8),
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Available Balance',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
@@ -1015,6 +718,12 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           } else if (index == 3) {
             // Events page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EventsScreen(),
+              ),
+            );
 
           } else {
             // Home page
@@ -1082,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C2C2C),
+                    color: Color(0xFFFF0000),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1144,7 +853,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C2C2C),
+                    color: Color(0xFFFF0000),
                   ),
                 ),
                 const Text(
@@ -1271,7 +980,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1338,7 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   const SizedBox(height: 4),

@@ -227,7 +227,7 @@ class _TingungtuTvScreenState extends State<TingungtuTvScreen> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                       height: 1.3,
                     ),
                   ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
 
 class TermsScreen extends StatelessWidget {
   const TermsScreen({super.key});
@@ -10,7 +9,7 @@ class TermsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Terms & Conditions",
             style: TextStyle(color: Colors.white)),
-        backgroundColor: Constants.primaryColor,
+
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(

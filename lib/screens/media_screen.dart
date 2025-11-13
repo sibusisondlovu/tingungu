@@ -310,7 +310,7 @@ class _MediaScreenState extends State<MediaScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                       height: 1.3,
                     ),
                   ),

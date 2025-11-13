@@ -112,7 +112,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C2C2C),
+                    color: Color(0xFFFF0000),
                   ),
                 ),
                 Text(
@@ -315,7 +315,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   Text(
@@ -331,7 +331,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -534,7 +534,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF2C2C2C),
+                  color: Color(0xFFFF0000),
                 ),
               ),
               const SizedBox(height: 12),
@@ -577,7 +577,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF2C2C2C),
+                  color: Color(0xFFFF0000),
                 ),
               ),
               const SizedBox(height: 12),
@@ -650,7 +650,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF2C2C2C),
+                  color: Color(0xFFFF0000),
                 ),
               ),
               const SizedBox(height: 12),
@@ -710,7 +710,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     labelStyle: TextStyle(
                       color: isSelected
                           ? const Color(0xFFD4AF85)
-                          : const Color(0xFF2C2C2C),
+                          : const Color(0xFFFF0000),
                       fontWeight: FontWeight.w600,
                     ),
                   );
@@ -804,7 +804,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   const SizedBox(height: 4),

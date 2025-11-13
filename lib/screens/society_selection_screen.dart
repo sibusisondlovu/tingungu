@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tingungu_app/utils/constants.dart';
+
 
 class SocietySelectionPage extends StatefulWidget {
   final String currentSociety;
@@ -80,7 +80,7 @@ class _SocietySelectionPageState extends State<SocietySelectionPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Constants.primaryColor,
+
         iconTheme: IconThemeData(color: Colors.white), // makes the back icon white
         title: Text(
           'Select Society',

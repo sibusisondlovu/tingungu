@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tingungu_app/utils/constants.dart';
+
 
 import 'society_selection_screen.dart';
 
@@ -20,7 +20,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Constants.primaryColor,
         iconTheme: IconThemeData(color: Colors.white), // makes the back icon white
         title: Text(
           'Profile',
@@ -58,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle.isNotEmpty ? subtitle : 'Not provided'),
-      trailing: Icon(Icons.edit, color: Constants.primaryColor),
+      trailing: Icon(Icons.edit,),
       onTap: () {
         if (field == 'society') {
           Navigator.push(

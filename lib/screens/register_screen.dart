@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import '../utils/constants.dart';
 import 'home_screen.dart';
 import 'terms_screen.dart';
 
@@ -105,7 +104,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Constants.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -178,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         text: "Terms of Service, Data Privacy Policy & POPIA.",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Constants.primaryColor,
+
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -200,7 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _registerUser,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Constants.primaryColor,
+
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -224,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: const Text(
                           "Login",
                           style: TextStyle(
-                            color: Constants.primaryColor,
+
                             fontWeight: FontWeight.bold,
                           ),
                         ),

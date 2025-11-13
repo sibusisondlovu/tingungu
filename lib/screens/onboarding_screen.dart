@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tingungu_app/screens/register_screen.dart';
 
-import '../utils/constants.dart' show Constants;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -70,7 +69,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               controller: _controller,
               count: 4,
               effect: const WormEffect(
-                activeDotColor: Constants.primaryColor,
                 dotHeight: 10,
                 dotWidth: 10,
               ),
@@ -80,7 +78,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ? ElevatedButton(
               onPressed: _finishOnboarding,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Constants.primaryColor,
                 minimumSize: const Size.fromHeight(50),
               ),
               child: const Text('GET STARTED'),

@@ -227,7 +227,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2C),
+                      color: Color(0xFFFF0000),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -266,7 +266,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF2C2C2C),
+                                color: Color(0xFFFF0000),
                               ),
                             ),
                           ],
@@ -378,7 +378,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF2C2C2C),
+                              color: Color(0xFFFF0000),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -453,7 +453,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C2C2C),
+                        color: Color(0xFFFF0000),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -501,7 +501,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2C2C2C),
+                            color: Color(0xFFFF0000),
                           ),
                         ),
                       ],
@@ -512,7 +512,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C2C2C),
+                        color: Color(0xFFFF0000),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -575,7 +575,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C2C2C),
+            color: Color(0xFFFF0000),
           ),
         ),
       ],
@@ -596,7 +596,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
             value,
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF2C2C2C),
+              color: Color(0xFFFF0000),
             ),
           ),
         ),

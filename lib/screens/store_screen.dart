@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../utils/constants.dart'; // for Constants.primaryColor
 
 class StoreScreen extends StatelessWidget {
   const StoreScreen({super.key});
@@ -34,7 +33,6 @@ class StoreScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tingungu Store'),
-        backgroundColor: Constants.primaryColor,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(12),
@@ -72,7 +70,6 @@ class StoreScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Constants.primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),

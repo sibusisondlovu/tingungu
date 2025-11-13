@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tingungu_app/screens/payfast_page.dart';
 
-import '../utils/constants.dart';
 
 class GivingPage extends StatefulWidget {
   static const String id = "givingScreen";
@@ -90,7 +89,7 @@ class _GivingPageState extends State<GivingPage> {
         title: const Text('Giving', style: TextStyle(fontSize: 16, color: Colors.white)),
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Constants.primaryColor,
+
         actions: const [
           Padding(
             padding: EdgeInsets.all(8.0),

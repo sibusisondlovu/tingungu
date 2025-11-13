@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../utils/constants.dart';
 import 'payment_status_screen.dart';
 
 class PayFastWebView extends StatefulWidget {
@@ -109,7 +108,6 @@ class _PayFastWebViewState extends State<PayFastWebView> {
         title: const Text('Process Payment', style: TextStyle(fontSize: 16, color: Colors.white)),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Constants.primaryColor,
       ),
       body: Stack(
         children: [
