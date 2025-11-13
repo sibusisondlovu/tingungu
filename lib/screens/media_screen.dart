@@ -1,10 +1,10 @@
+// File: lib/screens/media_screen.dart - FIXED
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/media_service.dart';
 import '../data/media_video_model.dart';
-
 
 class MediaScreen extends StatefulWidget {
   const MediaScreen({super.key});
@@ -98,6 +98,7 @@ class _MediaScreenState extends State<MediaScreen> {
       body: FutureBuilder<List<MediaVideo>>(
         future: _futureVideos,
         builder: (context, snapshot) {
+          // Loading State
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: Column(
@@ -121,6 +122,7 @@ class _MediaScreenState extends State<MediaScreen> {
             );
           }
 
+          // Error State
           if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -165,6 +167,7 @@ class _MediaScreenState extends State<MediaScreen> {
             );
           }
 
+          // Empty State
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
@@ -258,7 +261,7 @@ class _MediaScreenState extends State<MediaScreen> {
                     topRight: Radius.circular(14),
                   ),
                   child: Image.network(
-                    '',
+                    video.thumbnailUrl, // FIXED: Use video.thumbnailUrl instead of empty string
                     width: double.infinity,
                     height: 200,
                     fit: BoxFit.cover,
@@ -312,12 +315,12 @@ class _MediaScreenState extends State<MediaScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Video Description
-                  if (video.description.isNotEmpty)
+                  // Video Description - FIXED: Handle null safely
+                  if (video.description != null && video.description!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
-                        video.description,
+                        video.description!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
