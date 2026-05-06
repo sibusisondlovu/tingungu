@@ -1,40 +1,42 @@
-import 'circuit_model.dart';
-
 class Society {
-  final int id;
+  final String id;
   final String name;
-  final Circuit circuit;
-
+  final String? circuit;
+  final String? location;
+  final String? leader;
 
   Society({
     required this.id,
     required this.name,
-    required this.circuit,
-
+    this.circuit,
+    this.location,
+    this.leader,
   });
 
   factory Society.fromJson(Map<String, dynamic> json) {
     return Society(
-      id: json['id'] ?? 0,
+      id: json['id']?.toString() ?? '',
       name: json['name'] ?? 'Unknown',
-      circuit: Circuit.fromJson(json['circuit'] ?? {}),
+      circuit: json['circuit'],
+      location: json['location'],
+      leader: json['leader'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
+  factory Society.fromMap(Map<String, dynamic> map, String id) {
+    return Society(
+      id: id,
+      name: map['name'] ?? 'Unknown',
+      circuit: map['circuit'],
+      location: map['location'],
+      leader: map['leader'],
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
     'name': name,
-    'circuit': {
-      'id': circuit.id,
-      'name': circuit.name,
-      'category': circuit.category,
-      'leader': {
-        'id': circuit.leader.id,
-        'firstName': circuit.leader.firstName,
-        'lastName': circuit.leader.lastName,
-        'cellNumber': circuit.leader.cellNumber,
-        'email': circuit.leader.email,
-      },
-    },
+    'circuit': circuit,
+    'location': location,
+    'leader': leader,
   };
 }

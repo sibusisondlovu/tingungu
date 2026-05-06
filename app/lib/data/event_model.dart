@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class Event {
-  final int id;
+  final String id;
   final String month;
   final String dateStart;
   final String? dateEnd;
@@ -21,12 +21,23 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      id: int.tryParse(json['id'].toString()) ?? 0,
+      id: json['id']?.toString() ?? '',
       month: json['month'] ?? '',
       dateStart: json['date_start'] ?? '',
       dateEnd: json['date_end'],
       description: json['description'] ?? '',
       venue: json['venue'],
+    );
+  }
+
+  factory Event.fromMap(Map<String, dynamic> map, String id) {
+    return Event(
+      id: id,
+      month: map['month'] ?? '',
+      dateStart: map['date_start'] ?? '',
+      dateEnd: map['date_end'],
+      description: map['description'] ?? '',
+      venue: map['venue'],
     );
   }
 }

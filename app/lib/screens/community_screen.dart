@@ -57,20 +57,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
       }
 
       // If not in SharedPreferences, check API
-      final userIdInt = int.tryParse(userId!);
-      if (userIdInt != null) {
-        final society = await SocietyService.getUserSociety(userIdInt);
+      if (userId != null) {
+        final society = await SocietyService.getUserSociety(userId!);
 
         if (society != null) {
           // Save to SharedPreferences for future access
-          await prefs.setString('user_society', jsonEncode(society.toJson()));
+          await prefs.setString('user_society', jsonEncode(society.toMap()));
 
           // Also save to Firestore
           await FirebaseFirestore.instance
               .collection('users')
               .doc(userId)
               .update({
-            'society': society.toJson(),
+            'society': society.name,
             'society_id': society.id,
           });
         }
@@ -92,7 +91,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SocietySelectionPage(currentSociety: '',),
+        builder: (context) => SocietySelectionPage(currentSociety: userSociety?.name ?? '',),
       ),
     ).then((_) {
       _loadUserSociety();
@@ -127,10 +126,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Future<void> _performLeaveSociety() async {
     if (userId == null) return;
 
-    final userIdInt = int.tryParse(userId!);
-    if (userIdInt == null) return;
-
-    final result = await SocietyService.leaveSociety(userIdInt);
+    final result = await SocietyService.leaveSociety(userId!);
 
     if (result['success']) {
       final prefs = await SharedPreferences.getInstance();
@@ -392,7 +388,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              userSociety!.circuit.category,
+                              userSociety!.circuit ?? 'Church Society',
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -414,12 +410,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
-                                  Icons.people_alt_outlined,
+                                  Icons.location_on_outlined,
                                   color: Color(0xFF3B0D11),
                                   size: 18,
                                 ),
                                 const SizedBox(width: 8),
-
+                                Text(
+                                  userSociety!.location ?? 'TBC',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF3B0D11),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -449,7 +451,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Circuit Information',
+                      'Society Information',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -459,12 +461,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       'Circuit',
-                      userSociety!.circuit.name,
+                      userSociety!.circuit ?? '—',
                     ),
                     const SizedBox(height: 12),
                     _buildInfoRow(
-                      'Category',
-                      userSociety!.circuit.category,
+                      'Location',
+                      userSociety!.location ?? '—',
                     ),
                   ],
                 ),
@@ -497,7 +499,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          'Circuit Leader',
+                          'Society Leader',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -508,22 +510,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      userSociety!.circuit.leader.fullName,
+                      userSociety!.leader ?? 'TBC',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF3B0D11),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildContactRow(
-                      Icons.phone_outlined,
-                      userSociety!.circuit.leader.cellNumber,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildContactRow(
-                      Icons.email_outlined,
-                      userSociety!.circuit.leader.email,
                     ),
                   ],
                 ),

@@ -27,20 +27,11 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
-app/build/
-
-# Admin portal
-admin/node_modules/
-admin/dist/
-
-# Website
-website/node_modules/
-
+/coverage/
 
 # Symbolication related
 app.*.symbols
@@ -52,9 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/android/app/google-services.json
-/ios/Runner/GoogleService-Info.plist
-
-# Firebase
-.firebase/
-hosting/

@@ -1,33 +1,22 @@
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
 import '../data/event_model.dart';
 
 class EventService {
-  static const String _baseUrl = 'https://backend.tingungu.co.za';
+  static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Get all events
+  /// Get all events from Firestore
   static Future<List<Event>> getAllEvents() async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/get_all_events.php'))
-          .timeout(const Duration(seconds: 10));
+      final snapshot = await _db
+          .collection('events')
+          .orderBy('createdAt', descending: true)
+          .get();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] is List) {
-          List<Event> events = [];
-          for (var eventData in data['data']) {
-            events.add(Event.fromJson(eventData));
-          }
-          return events;
-        }
-      }
-
-      return [];
+      return snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching all events: $e');
@@ -36,26 +25,26 @@ class EventService {
     }
   }
 
-  /// Get events for a specific month
+  /// Get events for a specific month from Firestore
   static Future<List<Event>> getEventsByMonth(String month) async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/get_events_by_month.php?month=$month'))
-          .timeout(const Duration(seconds: 10));
+      final snapshot = await _db
+          .collection('events')
+          .where('month', isEqualTo: month)
+          .get();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] is List) {
-          List<Event> events = [];
-          for (var eventData in data['data']) {
-            events.add(Event.fromJson(eventData));
-          }
-          return events;
-        }
-      }
-
-      return [];
+      final events = snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
+          
+      // Sort manually by date_start since it's a string in the current schema
+      events.sort((a, b) {
+        int dayA = int.tryParse(a.dateStart) ?? 0;
+        int dayB = int.tryParse(b.dateStart) ?? 0;
+        return dayA.compareTo(dayB);
+      });
+      
+      return events;
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching events by month: $e');

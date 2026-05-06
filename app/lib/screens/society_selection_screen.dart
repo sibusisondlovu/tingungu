@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../data/society_model.dart';
+import '../services/society_service.dart';
 
 
 class SocietySelectionPage extends StatefulWidget {
@@ -17,8 +16,8 @@ class SocietySelectionPage extends StatefulWidget {
 }
 
 class _SocietySelectionPageState extends State<SocietySelectionPage> {
-  List<String> societies = [];
-  List<String> filteredSocieties = [];
+  List<Society> societies = [];
+  List<Society> filteredSocieties = [];
   bool isLoading = true;
 
   @override
@@ -29,20 +28,12 @@ class _SocietySelectionPageState extends State<SocietySelectionPage> {
 
   Future<void> fetchSocieties() async {
     try {
-      final response = await http.get(
-        Uri.parse('https://www.tingungu.co.za/data/societies.json'),
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          societies = data.cast<String>();
-          filteredSocieties = societies;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load societies');
-      }
+      final data = await SocietyService.getAllSocieties();
+      setState(() {
+        societies = data;
+        filteredSocieties = societies;
+        isLoading = false;
+      });
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching societies: $e');
@@ -57,7 +48,7 @@ class _SocietySelectionPageState extends State<SocietySelectionPage> {
     setState(() {
       filteredSocieties = societies
           .where((society) =>
-          society.toLowerCase().contains(query.toLowerCase()))
+          society.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -67,54 +58,76 @@ class _SocietySelectionPageState extends State<SocietySelectionPage> {
       isLoading = true;
     });
 
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .update({'society': selectedSociety});
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      await SocietyService.joinSociety(userId, selectedSociety);
+    }
 
-    Navigator.pop(context); // close screen after saving
+    if (mounted) {
+      Navigator.pop(context); // close screen after saving
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFAF9F6),
       appBar: AppBar(
         centerTitle: true,
-
-        iconTheme: IconThemeData(color: Colors.white), // makes the back icon white
-        title: Text(
+        backgroundColor: const Color(0xFF3B0D11),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
           'Select Society',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF3B0D11)))
           : Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Type name of society...',
-                prefixIcon: Icon(Icons.search),
+                hintText: 'Search society...',
+                prefixIcon: const Icon(Icons.search, color: Color(0xFF3B0D11)),
+                filled: true,
+                fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
               onChanged: filterSocieties,
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: filteredSocieties.length,
+              separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
               itemBuilder: (context, index) {
                 final society = filteredSocieties[index];
+                final isSelected = society.name == widget.currentSociety;
+
                 return ListTile(
-                  title: Text(society),
-                  trailing: society == widget.currentSociety
-                      ? Icon(Icons.check, color: Colors.green)
-                      : null,
-                  onTap: () => updateSociety(society),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  title: Text(
+                    society.name,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? const Color(0xFF3B0D11) : Colors.black87,
+                    ),
+                  ),
+                  subtitle: society.circuit != null ? Text(society.circuit!, style: const TextStyle(fontSize: 12)) : null,
+                  trailing: isSelected
+                      ? const Icon(Icons.check_circle, color: Color(0xFFFB8B24))
+                      : const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                  onTap: () => updateSociety(society.name),
                 );
               },
             ),

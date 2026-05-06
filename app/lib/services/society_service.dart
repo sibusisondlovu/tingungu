@@ -1,117 +1,81 @@
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
 import '../data/society_model.dart';
 
 class SocietyService {
-  static const String _baseUrl = 'https://yourdomain.com/api/societies';
+  static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Get all available societies
+  /// Get all available societies from Firestore
   static Future<List<Society>> getAllSocieties() async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/get_all_societies.php'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] is List) {
-          List<Society> societies = [];
-          for (var societyData in data['data']) {
-            societies.add(Society.fromJson(societyData));
-          }
-          return societies;
-        }
-      }
-
-      return [];
+      final snapshot = await _db.collection('societies').get();
+      return snapshot.docs
+          .map((doc) => Society.fromMap(doc.data(), doc.id))
+          .toList();
     } catch (e) {
-      print('Error fetching societies: $e');
+      if (kDebugMode) {
+        print('Error fetching societies: $e');
+      }
       return [];
     }
   }
 
-  /// Search societies by name or circuit
+  /// Search societies by name or circuit in Firestore
   static Future<List<Society>> searchSocieties(String query) async {
     try {
-      final encodedQuery = Uri.encodeComponent(query);
-      final response = await http
-          .get(Uri.parse('$_baseUrl/search_societies.php?q=$encodedQuery'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] is List) {
-          List<Society> societies = [];
-          for (var societyData in data['data']) {
-            societies.add(Society.fromJson(societyData));
-          }
-          return societies;
-        }
-      }
-
-      return [];
+      // Note: Firestore doesn't support partial string search natively easily
+      // We'll fetch and filter client-side for now as the list is small
+      final all = await getAllSocieties();
+      return all.where((s) =>
+        s.name.toLowerCase().contains(query.toLowerCase()) ||
+        (s.circuit?.toLowerCase().contains(query.toLowerCase()) ?? false)
+      ).toList();
     } catch (e) {
-      print('Error searching societies: $e');
+      if (kDebugMode) {
+        print('Error searching societies: $e');
+      }
       return [];
     }
   }
 
-  /// Get societies by circuit
-  static Future<List<Society>> getSocietiesByCircuit(int circuitId) async {
+  /// Get societies by circuit (from Firestore)
+  static Future<List<Society>> getSocietiesByCircuit(String circuit) async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/get_circuit_societies.php?circuit_id=$circuitId'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] is List) {
-          List<Society> societies = [];
-          for (var societyData in data['data']) {
-            societies.add(Society.fromJson(societyData));
-          }
-          return societies;
-        }
-      }
-
-      return [];
+      final snapshot = await _db
+          .collection('societies')
+          .where('circuit', isEqualTo: circuit)
+          .get();
+          
+      return snapshot.docs
+          .map((doc) => Society.fromMap(doc.data(), doc.id))
+          .toList();
     } catch (e) {
-      print('Error fetching circuit societies: $e');
+      if (kDebugMode) {
+        print('Error fetching circuit societies: $e');
+      }
       return [];
     }
   }
 
-  /// Join a society
+  /// Join a society (Update user profile in Firestore)
   static Future<Map<String, dynamic>> joinSociety(
-      int userId,
-      int societyId,
+      String userId,
+      String societyName,
       ) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/join_society.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'society_id': societyId,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      await _db.collection('users').doc(userId).update({
+        'society': societyName,
+      });
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          'success': false,
-          'message': 'Failed to join society',
-        };
-      }
+      return {
+        'success': true,
+        'message': 'Joined society successfully',
+      };
     } catch (e) {
-      print('Error joining society: $e');
+      if (kDebugMode) {
+        print('Error joining society: $e');
+      }
       return {
         'success': false,
         'message': 'Error: $e',
@@ -119,21 +83,27 @@ class SocietyService {
     }
   }
 
-  /// Get user's society
-  static Future<Society?> getUserSociety(int userId) async {
+  /// Get user's society from Firestore
+  static Future<Society?> getUserSociety(String userId) async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/get_user_society.php?user_id=$userId'))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success'] == true && data['data'] != null) {
-          return Society.fromJson(data['data']);
+      final userDoc = await _db.collection('users').doc(userId).get();
+      if (userDoc.exists && userDoc.data()?.containsKey('society') == true) {
+        final societyName = userDoc.data()!['society'];
+        
+        // Find the society object by name
+        final snapshot = await _db
+            .collection('societies')
+            .where('name', isEqualTo: societyName)
+            .limit(1)
+            .get();
+            
+        if (snapshot.docs.isNotEmpty) {
+          return Society.fromMap(snapshot.docs.first.data(), snapshot.docs.first.id);
         }
+        
+        // Return a virtual society if only name exists but not in the master list
+        return Society(id: 'virtual', name: societyName);
       }
-
       return null;
     } catch (e) {
       if (kDebugMode) {
@@ -143,27 +113,21 @@ class SocietyService {
     }
   }
 
-  /// Leave society
-  static Future<Map<String, dynamic>> leaveSociety(int userId) async {
+  /// Leave society (Update user profile in Firestore)
+  static Future<Map<String, dynamic>> leaveSociety(String userId) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/leave_society.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      await _db.collection('users').doc(userId).update({
+        'society': FieldValue.delete(),
+      });
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          'success': false,
-          'message': 'Failed to leave society',
-        };
-      }
+      return {
+        'success': true,
+        'message': 'Left society successfully',
+      };
     } catch (e) {
-      print('Error leaving society: $e');
+      if (kDebugMode) {
+        print('Error leaving society: $e');
+      }
       return {
         'success': false,
         'message': 'Error: $e',

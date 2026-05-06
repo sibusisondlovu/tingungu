@@ -553,6 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                _drawerItem('Edit Profile', Icons.person_outline),
                 _drawerItem('About Tingungu', Icons.info_outline),
                 _drawerItem('Give', Icons.favorite_outline),
                 _drawerItem('My Cart', Icons.shopping_cart_outlined),
@@ -607,6 +608,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(color: Colors.grey, fontSize: 10),
                 ),
                 const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Media', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedMediaData(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Notices', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedNotices(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Giving', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedGivingOptions(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Marketplace', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedMarketplaceData(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Events', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedEventsData(); },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.refresh, color: Color(0xFFFB8B24)),
+                  title: const Text('Seed Societies', style: TextStyle(fontSize: 14)),
+                  onTap: () { Navigator.pop(context); _seedSocietiesData(); },
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -645,14 +677,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       onTap: () {
         Navigator.pop(context);
-        if (title == 'About Tingungu') {
+        if (title == 'Edit Profile') {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
+        } else if (title == 'About Tingungu') {
           launchUrl(Uri.parse('https://www.tingungu.co.za/index.html'), mode: LaunchMode.externalApplication);
         } else if (title == 'Give') {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const GivingPage()));
         } else if (title == 'My Cart') {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const StoreScreen(showCart: true)));
         } else if (title == 'Transactions') {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
         }
       },
     );
@@ -970,6 +1004,114 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Seeded 20 products!')));
+    }
+  }
+
+  Future<void> _seedEventsData() async {
+    showDialog(context: context, builder: (_) => const Center(child: CircularProgressIndicator()));
+    final events = [
+      {"month": "January", "date_start": "1", "date_end": null, "description": "New Year's Day", "venue": null},
+      {"month": "January", "date_start": "1", "date_end": "28", "description": "Feb Connexional Children & Youth Back to School Campaign", "venue": "All Districts"},
+      {"month": "January", "date_start": "7", "date_end": null, "description": "MCO Opens", "venue": null},
+      {"month": "January", "date_start": "11", "date_end": null, "description": "Induction of Rev David Gertze by the Vice Chair", "venue": "Magalies Circuit"},
+      {"month": "January", "date_start": "11", "date_end": null, "description": "Induction of Rev Moeletsi Sebolai and Thuso Manamela by the Bishop", "venue": "Ga Rankuwa"},
+      {"month": "January", "date_start": "12", "date_end": "13", "description": "EMMU General Committee", "venue": "eMseni"},
+      {"month": "January", "date_start": "12", "date_end": "13", "description": "Bishops Orientation", "venue": null},
+      {"month": "January", "date_start": "13", "date_end": null, "description": "Limpopo District Trust Property", "venue": "Virtual"},
+      {"month": "January", "date_start": "14", "date_end": null, "description": "Limpopo District EMMU Meeting", "venue": "Virtual"},
+      {"month": "January", "date_start": "14", "date_end": "16", "description": "Bishops' Retreat", "venue": "TBC"},
+      {"month": "January", "date_start": "15", "date_end": null, "description": "Limpopo District Finance Committee", "venue": "Virtual"},
+      {"month": "January", "date_start": "16", "date_end": "18", "description": "Lay President & District Lay Leaders' Consultation", "venue": "Namibia District"},
+      {"month": "January", "date_start": "17", "date_end": null, "description": "Connexional Women's Fellowship Spiritual opening Retreat", "venue": "NFSL District"},
+      {"month": "January", "date_start": "18", "date_end": null, "description": "Induction of Rev Mosiga Seekoei by the Bishop", "venue": "Mbombela"},
+      {"month": "January", "date_start": "19", "date_end": "23", "description": "Probationer Seminar", "venue": "eMseni"},
+      {"month": "January", "date_start": "19", "date_end": "23", "description": "Order of Evangelism Probationer Seminar", "venue": "eMseni"},
+      {"month": "January", "date_start": "20", "date_end": null, "description": "Synergizing the Orders", "venue": "Virtual"},
+      {"month": "January", "date_start": "23", "date_end": null, "description": "Methodist Joint Removals (MJR) Meeting", "venue": "MCO"},
+      {"month": "January", "date_start": "23", "date_end": "25", "description": "Connexional Women's Fellowship Executive Committee Meeting", "venue": "Lumko Retreat Centre"},
+      {"month": "January", "date_start": "24", "date_end": null, "description": "Limpopo District Wesley Guild GEC", "venue": "Virtual"},
+      {"month": "January", "date_start": "25", "date_end": null, "description": "Induction of Rev Elisha Moeketsi by the Bishop", "venue": "Mabieskraal"},
+      {"month": "January", "date_start": "25", "date_end": null, "description": "Induction of Rev Gavin Felix by the Vice Chair", "venue": "Middleburg"},
+      {"month": "January", "date_start": "25", "date_end": null, "description": "Seth Mokitimi Methodist Seminary Opening Service", "venue": "SMMS"},
+      {"month": "January", "date_start": "27", "date_end": null, "description": "Limpopo District Management", "venue": "Virtual"},
+      {"month": "January", "date_start": "27", "date_end": "29", "description": "Molopo District Boundaries Conversation: 27th Francistown, 28th Gaborone, 29th Mahikeng", "venue": "Molopo District"},
+      {"month": "January", "date_start": "28", "date_end": null, "description": "Church Unity Commission Executive", "venue": "Virtual"},
+      {"month": "January", "date_start": "29", "date_end": null, "description": "Connexional Men's League District Presidents Meeting", "venue": "Virtual"},
+      {"month": "January", "date_start": "31", "date_end": null, "description": "Connexional Children and Youth Executive Meeting", "venue": "Virtual"},
+      {"month": "February", "date_start": "3", "date_end": null, "description": "Connexional Unit Leaders' Meeting", "venue": "MCO"},
+      {"month": "February", "date_start": "3", "date_end": "4", "description": "DEWCOM Meeting", "venue": "eMseni"},
+      {"month": "February", "date_start": "5", "date_end": null, "description": "Local Preachers' Department District Secretaries Consultation", "venue": "Virtual"},
+      {"month": "February", "date_start": "5", "date_end": null, "description": "MCSA Church Funds Investment & Advisory Committee", "venue": "TBA"},
+      {"month": "February", "date_start": "5", "date_end": null, "description": "Communications Board Meeting", "venue": "MCO"},
+      {"month": "February", "date_start": "6", "date_end": "8", "description": "Connexional Children and Youth Children's Ministry Indaba", "venue": "Lesotho"},
+      {"month": "February", "date_start": "7", "date_end": null, "description": "Boundaries Sub-Committee: Molopo Conversations", "venue": "Rustenburg"},
+      {"month": "February", "date_start": "7", "date_end": null, "description": "Limpopo District Women's Fellowship Extended Leaders Capacity Building Workshop", "venue": "Coalfields"},
+      {"month": "February", "date_start": "8", "date_end": null, "description": "Induction of Revs Petrus Madumo and Monare", "venue": "Coalfields"},
+      {"month": "February", "date_start": "8", "date_end": null, "description": "Induction of Revs Nomvula and Zamuxolo Botha by the Vice Chair", "venue": "Pretoria Central"},
+      {"month": "February", "date_start": "9", "date_end": "13", "description": "Ordinands' Seminar", "venue": "Lumko Retreat Centre"},
+      {"month": "February", "date_start": "10", "date_end": null, "description": "Connexional Audit Committee Meeting", "venue": null},
+      {"month": "February", "date_start": "10", "date_end": null, "description": "Limpopo Circuit Steward's Consultative Workshop", "venue": "Virtual"},
+      {"month": "February", "date_start": "10", "date_end": null, "description": "Mission Unit Advisory Board Meeting", "venue": "MCO"},
+      {"month": "February", "date_start": "10", "date_end": null, "description": "MJR Coordinators' Workshop", "venue": "TBA"},
+      {"month": "February", "date_start": "10", "date_end": "12", "description": "Limpopo District Minister's retreat", "venue": "TBA"},
+      {"month": "February", "date_start": "11", "date_end": null, "description": "Ecumenical Affairs Advisory Board", "venue": "MCO"},
+      {"month": "February", "date_start": "12", "date_end": null, "description": "Lay Training Advisory Panel Consultation", "venue": "Virtual"},
+      {"month": "February", "date_start": "12", "date_end": null, "description": "Connexional Trust Property Committee", "venue": "Virtual"},
+      {"month": "February", "date_start": "12", "date_end": "14", "description": "Young Men's Guild Connexional General Executive Committee Meeting", "venue": "Natal Coastal District"},
+      {"month": "February", "date_start": "13", "date_end": "16", "description": "Women's Manyano Connexional Extended Executive Meeting", "venue": "NFSL District"},
+      {"month": "February", "date_start": "13", "date_end": null, "description": "Wesley Guild Connexional General Executive Meeting", "venue": "Virtual"},
+      {"month": "February", "date_start": "15", "date_end": null, "description": "Induction of Rev Sethunya Motlhodi by the Bishop", "venue": "Mphahlele"},
+      {"month": "February", "date_start": "18", "date_end": null, "description": "Ash Wednesday", "venue": null},
+      {"month": "February", "date_start": "19", "date_end": "20", "description": "Connexional Heritage Standing Committee", "venue": "TBC"},
+      {"month": "February", "date_start": "19", "date_end": "21", "description": "Local Preachers Association General Committee Meeting", "venue": "Highveld & eSwatini District"},
+      {"month": "February", "date_start": "20", "date_end": "22", "description": "Limpopo District Children Ministry Indaba & MCYU Opening Service (Sunday)", "venue": "Hoffenhein Lodge"},
+      {"month": "February", "date_start": "22", "date_end": null, "description": "Induction of Rev Tshepo Nkosi by the Bishop", "venue": "Moreleta"},
+      {"month": "February", "date_start": "24", "date_end": null, "description": "Medical Aid Committee", "venue": "MCO"},
+      {"month": "February", "date_start": "24", "date_end": "25", "description": "Order of Evangelism Coordinators Consultation", "venue": "Emseni"},
+      {"month": "February", "date_start": "26", "date_end": null, "description": "Finance Unit Investment and Advisory", "venue": "Virtual"},
+      {"month": "February", "date_start": "26", "date_end": "March 1", "description": "Connexional Women's Fellowship General Executive Committee Meeting", "venue": "Central District [Maranatha]"},
+      {"month": "February", "date_start": "27", "date_end": null, "description": "Connexional MethSSoc Executive Assembly", "venue": "Virtual"},
+      {"month": "February", "date_start": "27", "date_end": "March 1", "description": "Limpopo Minister's Wives retreat", "venue": "TBA"},
+      {"month": "February", "date_start": "27", "date_end": "March 1", "description": "Limpopo District Music Association Annual Convention", "venue": "Mabopane"},
+      {"month": "February", "date_start": "28", "date_end": null, "description": "Limpopo District Young Women's Manyano DEC", "venue": "Seshego"},
+      {"month": "February", "date_start": "28", "date_end": "March 1", "description": "Limpopo District YAM Strategic session & YAM Mhluzi Circuit Launch", "venue": "Mhluzi Circuit"},
+    ];
+    final batch = FirebaseFirestore.instance.batch();
+    for (var ev in events) {
+      final docRef = FirebaseFirestore.instance.collection('events').doc();
+      batch.set(docRef, {
+        ...ev,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+    }
+    await batch.commit();
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Seeded 65 events!')));
+    }
+  }
+
+  Future<void> _seedSocietiesData() async {
+    showDialog(context: context, builder: (_) => const Center(child: CircularProgressIndicator()));
+    final societies = [
+      {"name": "Zion Society", "circuit": "Pretoria Central", "location": "Pretoria", "leader": "Rev. Smith"},
+      {"name": "Ebenezer Society", "circuit": "Johannesburg East", "location": "Bedfordview", "leader": "Rev. Ndlovu"},
+      {"name": "Central Methodist", "circuit": "Cape Town Central", "location": "Cape Town", "leader": "Rev. Botha"},
+      {"name": "Bethel Society", "circuit": "Durban Coastal", "location": "Durban", "leader": "Rev. Gwala"},
+      {"name": "Wesley Society", "circuit": "Port Elizabeth South", "location": "Gqeberha", "leader": "Rev. Jacobs"},
+    ];
+    final batch = FirebaseFirestore.instance.batch();
+    for (var s in societies) {
+      final docRef = FirebaseFirestore.instance.collection('societies').doc();
+      batch.set(docRef, {
+        ...s,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+    }
+    await batch.commit();
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Seeded 5 societies!')));
     }
   }
 
