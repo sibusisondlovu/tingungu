@@ -19,6 +19,47 @@ void main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF3b0d11),
+        primary: const Color(0xFF3b0d11),
+        secondary: const Color(0xFFFB8B24),
+        brightness: Brightness.light,
+      ),
+      primaryColor: const Color(0xFF3b0d11),
+      scaffoldBackgroundColor: Colors.white,
+      fontFamily: 'Poppins',
+      iconTheme: const IconThemeData(
+        color: Color(0xFFFB8B24),
+      ),
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.black),
+        bodyMedium: TextStyle(color: Colors.black),
+        bodySmall: TextStyle(color: Colors.black),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFB8B24),
+          foregroundColor: Colors.white,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFFFB8B24),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFFFB8B24),
+          side: const BorderSide(color: Color(0xFFFB8B24)),
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF3b0d11),
+        foregroundColor: Colors.white,
+      ),
+    ),
     home: isFirstLaunch
         ? const OnboardingScreen()
         : (user != null ? const HomeScreen() : const HomeScreen()),

@@ -68,9 +68,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             SmoothPageIndicator(
               controller: _controller,
               count: 4,
-              effect: const WormEffect(
+              effect: WormEffect(
                 dotHeight: 10,
                 dotWidth: 10,
+                activeDotColor: Theme.of(context).colorScheme.secondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -88,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
               },
-              child: const Text('NEXT', style: TextStyle(color: Colors.white),),
+              child: const Text('NEXT'),
             ),
           ],
         ),

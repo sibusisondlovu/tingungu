@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
@@ -101,64 +103,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+  bool _profileCompleted = true;
+
   Future<void> _loadUserProfile() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userJson = prefs.getString('user_profile');
-
-      if (userJson != null) {
-        // Load from SharedPreferences
-        final userData = jsonDecode(userJson);
-        setState(() {
-          userName = userData['name'] ?? 'Guest';
-          userEmail = userData['email'] ?? '';
-          userPhone = userData['phone'] ?? '';
-          userAvatar = userData['avatar'] ?? '';
-          _isLoadingProfile = false;
-        });
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+          final userData = doc.data() ?? {};
+          if (mounted) {
+            setState(() {
+              userName = userData['displayname'] ?? 'Guest';
+              userAvatar = userData['avatar'] ?? '';
+              _profileCompleted = userData['profile_completed'] ?? false;
+              _isLoadingProfile = false;
+            });
+          }
+        } else {
+          if (mounted) setState(() => _isLoadingProfile = false);
+        }
       } else {
-        // Load from Firestore
-        await _loadFromFirestore();
+        if (mounted) setState(() => _isLoadingProfile = false);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error loading profile: $e');
-      }
-      setState(() {
-        _isLoadingProfile = false;
-      });
-    }
-  }
-
-  Future<void> _loadFromFirestore() async {
-    try {
-      final userId = 'current_user_id'; // Replace with actual user ID from auth
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      if (doc.exists) {
-        final userData = doc.data() ?? {};
-        setState(() {
-          userName = userData['name'] ?? 'Guest';
-          userEmail = userData['email'] ?? '';
-          userPhone = userData['phone'] ?? '';
-          userAvatar = userData['avatar'] ?? '';
-        });
-
-        // Save to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_profile', jsonEncode(userData));
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error loading from Firestore: $e');
-      }
-    } finally {
-      setState(() {
-        _isLoadingProfile = false;
-      });
+      if (kDebugMode) print('Error loading profile: $e');
+      if (mounted) setState(() => _isLoadingProfile = false);
     }
   }
 
@@ -173,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFB8B24)),
               ),
               const SizedBox(height: 16),
               Text(
@@ -206,6 +176,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (!_profileCompleted)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFB8B24).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFB8B24)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Color(0xFFFB8B24)),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                "Please complete your profile.",
+                                style: TextStyle(color: Color(0xFF3B0D11), fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage())).then((_) => _loadUserProfile());
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFB8B24),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text("Complete"),
+                            ),
+                          ],
+                        ),
+                      ),
                     _buildGreeting(),
                     const SizedBox(height: 24),
                     _buildWalletCard(),
@@ -247,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              child: const Icon(Icons.menu, color: Color(0xFFFF0000)),
+              child: const Icon(Icons.menu, color: Color(0xFFFB8B24)),
             ),
           ),
           const Text(
@@ -255,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFFF0000),
+              color: Color(0xFF3B0D11),
             ),
           ),
           Container(
@@ -275,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label: const Text('3'),
               child: const Icon(
                 Icons.notifications_outlined,
-                color: Color(0xFFFF0000),
+                color: Color(0xFFFB8B24),
               ),
             ),
           ),
@@ -291,9 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           '$timeGreeting, $userName! 👋',
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFFFF0000),
+            color: Color(0xFF3B0D11),
           ),
         ),
         const SizedBox(height: 4),
@@ -313,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4AF85).withOpacity(0.15),
+              color: const Color(0xFFFB8B24).withOpacity(0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -322,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(20),
         child: const Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD4AF85)),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFB8B24)),
           ),
         ),
       );
@@ -334,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4AF85).withOpacity(0.15),
+            color: const Color(0xFFFB8B24).withOpacity(0.15),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -350,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF85),
+                  color: const Color(0xFFFB8B24),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -372,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(
               fontSize: 16,
               fontStyle: FontStyle.italic,
-              color: Color(0xFFFF0000),
+              color: Color(0xFF3B0D11),
               height: 1.6,
               fontWeight: FontWeight.w500,
             ),
@@ -386,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFD4AF85),
+                  color: Color(0xFFFB8B24),
                 ),
               ),
               Text(
@@ -409,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFFFF0000),
+            color: Color(0xFF3B0D11),
           ),
         ),
         const SizedBox(height: 16),
@@ -427,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildMarketplaceCard(
                 icon: Icons.local_offer_outlined,
                 label: 'Sell',
-                color: const Color(0xFFD4AF85),
+                color: const Color(0xFFFB8B24),
               ),
             ),
           ],
@@ -477,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFFF0000),
+                color: Color(0xFF3B0D11),
               ),
             ),
           ],
@@ -491,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(color: Color(0xFFD4AF85)),
+            decoration: const BoxDecoration(color: Color(0xFF3B0D11)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.logout),
                 label: const Text('Logout'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD4AF85),
+                  backgroundColor: const Color(0xFFFB8B24),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -564,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _drawerItem(String title, IconData icon) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFFD4AF85)),
+      leading: Icon(icon, color: const Color(0xFFFB8B24)),
       title: Text(
         title,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -576,15 +579,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWalletCard() {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFD4AF85), Color(0xFFC19A6B)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFF3B0D11),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4AF85).withOpacity(0.3),
+            color: const Color(0xFF3B0D11).withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -645,7 +644,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFFD4AF85),
+                  foregroundColor: const Color(0xFF3B0D11),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -734,7 +733,7 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         elevation: 0,
-        selectedItemColor: const Color(0xFFD4AF85),
+        selectedItemColor: const Color(0xFFFB8B24),
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
@@ -765,12 +764,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showBuyBottomSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       backgroundColor: const Color(0xFFFAF9F6),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
+      builder: (context) => SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 4,
@@ -792,7 +793,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF0000),
+                    color: Color(0xFF3B0D11),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -809,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   description:
                   'Buy electricity, airtime, and other digital products',
                   icon: Icons.bolt_outlined,
-                  color: const Color(0xFFD4AF85),
+                  color: const Color(0xFFFB8B24),
                   onTap: () {
                     Navigator.pop(context);
                     _showVASBottomSheet();
@@ -821,18 +822,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 
   void _showVASBottomSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       backgroundColor: const Color(0xFFFAF9F6),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
+      builder: (context) => SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 4,
@@ -854,7 +858,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF0000),
+                    color: Color(0xFF3B0D11),
                   ),
                 ),
                 const Text(
@@ -899,13 +903,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: 'Electricity',
                   description: 'Buy electricity tokens',
                   icon: Icons.bolt_outlined,
-                  color: const Color(0xFFD4AF85),
+                  color: const Color(0xFFFB8B24),
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Opening Electricity Purchase'),
-                        backgroundColor: Color(0xFFD4AF85),
+                        backgroundColor: Color(0xFFFB8B24),
                         duration: Duration(seconds: 2),
                       ),
                     );
@@ -933,6 +937,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -981,7 +986,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF0000),
+                      color: Color(0xFF3B0D11),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1048,7 +1053,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF0000),
+                      color: Color(0xFF3B0D11),
                     ),
                   ),
                   const SizedBox(height: 4),

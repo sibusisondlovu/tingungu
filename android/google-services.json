@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "226294099341",
+    "project_id": "tingungu-sa",
+    "storage_bucket": "tingungu-sa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226294099341:android:6cbb7d031dae132b1e61c4",
+        "android_client_info": {
+          "package_name": "za.co.tingungu.tingungu_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "226294099341-7a1cemfouruvpih4hkn49m144n6v1tbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "za.co.tingungu.tingungu_app",
+            "certificate_hash": "6318e9e2a59570e41db3c67323695444c61adde5"
+          }
+        },
+        {
+          "client_id": "226294099341-on1u4vl9gmc01f4tf1h11dr7bvigr5b2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "za.co.tingungu.tingungu_app",
+            "certificate_hash": "eb307f9c52122847475cff6ded348930898f7502"
+          }
+        },
+        {
+          "client_id": "226294099341-d6n78vt0atgifcgmignq528bvfhq9t0u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAUA2qK41jnftXP_g2yx-P4yYyZwWgA_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "226294099341-d6n78vt0atgifcgmignq528bvfhq9t0u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "226294099341-gj5nvka1v8l9ncad8nb982h3gpk5lkoj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "za.co.tingungu.tingunguApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

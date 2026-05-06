@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'home_screen.dart';
 import 'terms_screen.dart';
 
@@ -47,13 +48,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final uid = userCredential.user?.uid;
 
         await _firestore.collection('users').doc(uid).set({
-          'name': _nameController.text.trim().isEmpty
-              ? 'no-data-provided'
-              : _nameController.text.trim(),
+          'displayname': _nameController.text.trim().isEmpty ? 'New User' : _nameController.text.trim(),
           'email': _emailController.text.trim(),
-          'cellnumber': 'no-data-provided',
-          'avatar': 'no-data-provided',
-          'society': 'no-data-provided',
+          'cellnumber': '',
+          'avatar': '',
+          'society': '',
+          'dob': '',
+          'profile_completed': false,
         });
 
 
@@ -83,6 +84,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
+    }
+  }
+
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      if (user != null) {
+        final doc = await _firestore.collection('users').doc(user.uid).get();
+        if (!doc.exists) {
+          await _firestore.collection('users').doc(user.uid).set({
+            'displayname': user.displayName ?? 'New User',
+            'email': user.email,
+            'avatar': user.photoURL ?? '',
+            'cellnumber': '',
+            'society': '',
+            'dob': '',
+            'profile_completed': false,
+          });
+        }
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Google Sign-In failed: $e"), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -176,7 +221,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         text: "Terms of Service, Data Privacy Policy & POPIA.",
                                         style: TextStyle(
                                           fontSize: 12,
-
+                                          color: Color(0xFFFB8B24),
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -198,13 +243,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _registerUser,
                       style: ElevatedButton.styleFrom(
-
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text("Register", style: TextStyle(fontSize: 16)),
+                      child: const Text("Continue with Email", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  const Text("OR", style: TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading ? null : _signInWithGoogle,
+                      icon: const Icon(Icons.g_mobiledata, size: 28, color: Color(0xFFFB8B24)),
+                      label: const Text("Continue with Google", style: TextStyle(fontSize: 16, color: Color(0xFFFB8B24))),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Color(0xFFFB8B24)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
                   ),
 
@@ -222,7 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: const Text(
                           "Login",
                           style: TextStyle(
-
+                            color: Color(0xFFFB8B24),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
