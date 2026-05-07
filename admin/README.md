@@ -1,16 +1,57 @@
-# React + Vite
+# Tingungu Admin Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The technical management interface for the Tingungu ecosystem, built with React and Vite.
 
-Currently, two official plugins are available:
+## 🏗 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework:** React 19
+- **Build Tool:** Vite
+- **Backend:** Firebase (Authentication, Firestore, Hosting)
+- **Data Visualization:** Recharts
+- **Routing:** React Router DOM (v7)
+- **Icons:** React Icons
+- **Date Handling:** date-fns
 
-## React Compiler
+## 🛠 Key Management Modules
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Located in `src/pages/`, the portal provides a suite of management tools:
 
-## Expanding the ESLint configuration
+- **Dashboard:** Aggregated analytics and real-time activity tracking.
+- **Societies Management:** CRUD operations for church societies and member affiliations.
+- **Financial Oversight:** Monitoring giving (Tithes, Offerings) and wallet transactions.
+- **Media Management:** Curating content for Tingungu TV (MediaPage).
+- **Event Coordination:** Managing the church calendar and event notifications.
+- **User Administration:** Role management and user activity logs.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (>= 18.x)
+- npm or yarn
+
+### Installation
+1. Navigate to the admin directory: `cd admin`
+2. Install dependencies: `npm install`
+3. Set up environment variables: Create a `.env` file with your Firebase configuration.
+
+### Development
+Run the development server:
+```bash
+npm run dev
+```
+
+### Production Build
+Build the optimized bundle for hosting:
+```bash
+npm run build
+```
+
+## 🌐 Deployment
+The portal is configured for **Firebase Hosting**. Deploy using the Firebase CLI:
+```bash
+firebase deploy --only hosting:admin
+```
+
+---
+© 2026 Tingungu Project
+
