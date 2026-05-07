@@ -1,16 +1,53 @@
-# tingungu_app
+# Tingungu Mobile Application
 
-Tingungu App
+A technical overview of the Tingungu Flutter application, designed as a comprehensive church companion and financial utility platform.
 
-## Getting Started
+## 🏗 Architecture & Tech Stack
 
-This project is a starting point for a Flutter application.
+The application is built using **Flutter (v3.8.1 SDK)** with a service-oriented architecture to ensure modularity and scalability.
 
-A few resources to get you started if this is your first Flutter project:
+- **Frontend Framework:** Flutter (Dart)
+- **Backend Infrastructure:** Firebase (Auth, Firestore, Hosting)
+- **State Management:** Mix of `StatefulWidget` lifecycle management and `SharedPreferences` for local persistence.
+- **Database:** Cloud Firestore (NoSQL) and direct MySQL integration for specific utility services.
+- **Payment Gateways:**
+  - **Google Pay:** Native integration via the `pay` package.
+  - **PayFast:** Webview-based integration for credit card and instant EFT transactions.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🛠 Key Service Modules
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The core logic is decoupled into dedicated service classes located in `lib/services/`:
+
+- **`UserService`**: Handles Firebase Authentication and user profile synchronization.
+- **`SocietyService`**: Manages church society data and member affiliations.
+- **`PurchaseAirtimeService`**: Interfaces with third-party providers for airtime and utility procurement.
+- **`DatabaseService`**: Centralized Firestore CRUD operations.
+- **`MediaService`**: Handles content delivery for Tingungu TV (YouTube API integration).
+
+## 🚀 Technical Features
+
+- **Dynamic Onboarding:** Persisted launch state using `SharedPreferences`.
+- **Wallet Infrastructure:** Real-time balance updates using Firestore Transactions to ensure data atomicity.
+- **Theme Engine:** Custom Material 3 theme implementation with brand-specific color tokens (Primary: `#3B0D11`, Secondary: `#FB8B24`).
+- **Deep Linking & Navigation:** Structured routing for seamless transitions between utility and spiritual content.
+
+## 📋 Prerequisites & Setup
+
+1. **Flutter SDK:** Ensure you are on the `stable` channel (>= 3.8.1).
+2. **Firebase Configuration:** 
+   - `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) must be present in their respective platform directories.
+   - Run `flutterfire configure` to update `lib/firebase_options.dart`.
+3. **Dependencies:** Run `flutter pub get` to install all required packages.
+
+## ⚠️ Important Note on Credentials
+
+The `main` branch currently utilizes **Sandbox/Test Credentials** for:
+- PayFast Merchant ID/Key
+- Google Pay Environment (`TEST`)
+- Airtime Provider API Keys
+
+Transitioning to production requires updating these tokens in the respective service configurations.
+
+---
+© 2026 Tingungu Project
+
