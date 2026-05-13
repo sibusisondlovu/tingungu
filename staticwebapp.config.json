@@ -1,0 +1,11 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "routes": [
+    {
+      "route": "/admin/*",
+      "rewrite": "/admin/index.html"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'thank_you_screen.dart';
+import '../components/payment_method_selector.dart';
 
 class StoreScreen extends StatefulWidget {
   final bool showCart;
@@ -367,10 +368,39 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isProcessing ? null : () => _checkout(total),
+                      onPressed: _isProcessing ? null : () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => PaymentMethodSelector(
+                            amount: total,
+                            title: 'Marketplace Purchase',
+                            description: 'Payment for marketplace items',
+                            onPaymentSuccess: (method) async {
+                              // Record transaction
+                              final user = FirebaseAuth.instance.currentUser;
+                              final txRef = FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('transactions').doc();
+                              await txRef.set({
+                                'amount': total,
+                                'type': 'Marketplace Purchase ($method)',
+                                'date': FieldValue.serverTimestamp(),
+                                'items': widget.cart,
+                              });
+                              
+                              Navigator.pop(context); // Close bottom sheet
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => ThankYouScreen(amount: total)),
+                              );
+                            },
+                            onPaymentFailed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3B0D11),
                         foregroundColor: Colors.white,

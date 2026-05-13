@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'thank_you_screen.dart';
+import '../components/payment_method_selector.dart';
 
 class GivingPage extends StatefulWidget {
   static const String id = "givingScreen";
@@ -19,7 +20,7 @@ class _GivingPageState extends State<GivingPage> {
 
   final user = FirebaseAuth.instance.currentUser;
 
-  Future<void> _processGiving() async {
+  void _processGiving() {
     if (selectedGivingType == null || amountController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select type and enter amount'), backgroundColor: Colors.red),
@@ -35,56 +36,45 @@ class _GivingPageState extends State<GivingPage> {
       return;
     }
 
-    setState(() => _isProcessing = true);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PaymentMethodSelector(
+        amount: amount,
+        title: 'Giving: $selectedGivingType',
+        description: noteController.text.isEmpty ? 'General Giving' : noteController.text,
+        onPaymentSuccess: (method) async {
+          // Record transaction
+          final txRef = FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('transactions').doc();
+          await txRef.set({
+            'amount': amount,
+            'type': 'Giving: $selectedGivingType ($method)',
+            'date': FieldValue.serverTimestamp(),
+            'note': noteController.text,
+          });
 
-    try {
-      final docRef = FirebaseFirestore.instance.collection('users').doc(user!.uid);
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final snapshot = await transaction.get(docRef);
-        if (!snapshot.exists) throw Exception("User not found");
+          // Record global giving record
+          final givingRef = FirebaseFirestore.instance.collection('givings').doc();
+          await givingRef.set({
+            'type': selectedGivingType,
+            'amount': amount,
+            'giverName': user!.displayName ?? 'Anonymous',
+            'giverUID': user!.uid,
+            'note': noteController.text,
+            'createdAt': FieldValue.serverTimestamp(),
+            'method': method,
+          });
 
-        final balance = (snapshot.data()?['wallet_balance'] ?? 0.0).toDouble();
-        if (balance < amount) {
-          throw Exception("Insufficient wallet balance");
-        }
-
-        // Deduct balance
-        transaction.update(docRef, {'wallet_balance': balance - amount});
-
-        // Record transaction
-        final txRef = FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('transactions').doc();
-        transaction.set(txRef, {
-          'amount': amount,
-          'type': 'Giving: $selectedGivingType',
-          'date': FieldValue.serverTimestamp(),
-          'note': noteController.text,
-        });
-
-        // Record global giving record
-        final givingRef = FirebaseFirestore.instance.collection('givings').doc();
-        transaction.set(givingRef, {
-          'type': selectedGivingType,
-          'amount': amount,
-          'giverName': user!.displayName ?? 'Anonymous',
-          'giverUID': user!.uid,
-          'note': noteController.text,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      });
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ThankYouScreen(amount: amount)),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll("Exception: ", "")), backgroundColor: Colors.red),
-      );
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
-    }
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ThankYouScreen(amount: amount)),
+          );
+        },
+        onPaymentFailed: () => Navigator.pop(context),
+      ),
+    );
   }
 
   @override

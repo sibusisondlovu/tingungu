@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/purchase_airtime_service.dart';
+import '../components/payment_method_selector.dart';
 
 
 class BuyAirtimeScreen extends StatefulWidget {
@@ -83,85 +84,72 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
   }
 
   void _showPaymentMethodSheet() {
+    final amount = double.tryParse(_amountController.text) ?? 0.0;
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      backgroundColor: const Color(0xFFFAF9F6),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 4,
-            width: 40,
-            margin: const EdgeInsets.only(top: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Choose Payment Method',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF0000),
-                  ),
-                ),
-                Text(
-                  'Select how you would like to pay',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildPaymentMethodCard(
-                  title: 'Tingungu Wallet',
-                  description: 'Use your Tingungu wallet balance',
-                  icon: Icons.account_balance_wallet_outlined,
-                  color: const Color(0xFF5B8FA3),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _processWalletPayment();
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildPaymentMethodCard(
-                  title: 'Bank Card',
-                  description: 'Pay securely via PayFast',
-                  icon: Icons.credit_card_outlined,
-                  color: const Color(0xFFD4AF85),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _processBankCardPayment();
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildPaymentMethodCard(
-                  title: 'Voucher',
-                  description: 'Redeem a Tingungu voucher code',
-                  icon: Icons.local_offer_outlined,
-                  color: const Color(0xFF8B7355),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showVoucherInputSheet();
-                  },
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-        ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PaymentMethodSelector(
+        amount: amount,
+        title: 'Airtime Top-up',
+        description: '$_selectedNetwork Airtime for ${_phoneController.text}',
+        onPaymentSuccess: (method) {
+          Navigator.pop(context);
+          _processAirtimePurchase(method);
+        },
+        onPaymentFailed: () => Navigator.pop(context),
       ),
     );
+  }
+
+  void _processAirtimePurchase(String method) async {
+    final airtimeService = PurchaseAirtimeService();
+    final productCode = _networkProductCodes[_selectedNetwork] ?? 101;
+    final amount = int.tryParse(_amountController.text) ?? 0;
+    final mobileNumber = _phoneController.text;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            Text('Processing Airtime via $method...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final result = await airtimeService.purchaseAirtime(
+        productCode: productCode,
+        amount: amount,
+        mobileNumber: mobileNumber,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('✓ Airtime added successfully via $method!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('✗ ${result['message'] ?? 'Purchase failed'}'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✗ Error: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   void _processWalletPayment() async {

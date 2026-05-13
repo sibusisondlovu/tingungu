@@ -1,0 +1,40 @@
+name: Deploy API to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd api
+          npm install
+
+      - name: Zip artifact for deployment
+        run: |
+          cd api
+          zip -r ../release.zip . -x "node_modules/*" ".env" "serviceAccountKey.json"
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'tingungu-api'
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: release.zip

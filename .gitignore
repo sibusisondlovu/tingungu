@@ -33,6 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 app/build/
+app/android/build/
 
 # Admin portal
 admin/node_modules/
@@ -58,3 +59,9 @@ app.*.map.json
 # Firebase
 .firebase/
 hosting/
+
+# API
+api/node_modules/
+api/.env
+api/serviceAccountKey.json
+api/*.pem

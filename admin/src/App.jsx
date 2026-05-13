@@ -7,6 +7,9 @@ import MediaPage from './pages/MediaPage';
 import GivingPage from './pages/GivingPage';
 import UsersPage from './pages/UsersPage';
 import SocietiesPage from './pages/SocietiesPage';
+import DistrictsPage from './pages/DistrictsPage';
+import CircuitsPage from './pages/CircuitsPage';
+import MinistersPage from './pages/MinistersPage';
 import TransactionsPage from './pages/TransactionsPage';
 import MarketplacePage from './pages/MarketplacePage';
 import TicketsPage from './pages/TicketsPage';
@@ -22,7 +25,10 @@ const PAGE_TITLES = {
   giving: { title: 'Giving Options', subtitle: 'Manage tithes, offerings and pledges' },
   events: { title: 'Events', subtitle: 'Church events and gatherings' },
   users: { title: 'Users', subtitle: 'Registered community members' },
-  societies: { title: 'Societies', subtitle: 'Church societies and circuits' },
+  societies: { title: 'Societies', subtitle: 'Church societies' },
+  districts: { title: 'Districts', subtitle: 'Church districts' },
+  circuits: { title: 'Circuits', subtitle: 'Church circuits' },
+  ministers: { title: 'Ministers', subtitle: 'Church ministers and appointments' },
   transactions: { title: 'Transactions', subtitle: 'All wallet and payment activity' },
   marketplace: { title: 'Marketplace', subtitle: 'Church store products' },
   tickets: { title: 'Support Tickets', subtitle: 'User-submitted issues' },
@@ -38,6 +44,9 @@ const PAGE_COMPONENTS = {
   events: EventsPage,
   users: UsersPage,
   societies: SocietiesPage,
+  districts: DistrictsPage,
+  circuits: CircuitsPage,
+  ministers: MinistersPage,
   transactions: TransactionsPage,
   marketplace: MarketplacePage,
   tickets: TicketsPage,

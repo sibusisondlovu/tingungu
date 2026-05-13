@@ -19,6 +19,7 @@ import 'community_screen.dart';
 import 'events_screen.dart';
 import 'media_screen.dart';
 import 'top_up_wallet.dart';
+import '../components/chatbot_widget.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -229,6 +230,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: _buildBottomNav(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const ChatbotWidget(),
+          );
+        },
+        backgroundColor: const Color(0xFF3B0D11),
+        child: const Icon(Icons.smart_toy_outlined, color: Colors.white),
+      ),
     );
   }
 

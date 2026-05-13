@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FiHome, FiUsers, FiVideo, FiBell, FiShoppingBag, FiHeart, FiSettings,
-         FiLogOut, FiMessageSquare, FiCalendar, FiDollarSign, FiMapPin, FiBarChart2 } from 'react-icons/fi';
+         FiLogOut, FiMessageSquare, FiCalendar, FiDollarSign, FiMapPin, FiBarChart2, FiMap, FiLayers } from 'react-icons/fi';
 
 const navItems = [
   { section: 'Overview', items: [
@@ -15,7 +15,10 @@ const navItems = [
   ]},
   { section: 'Community', items: [
     { id: 'users', label: 'Users', icon: FiUsers },
+    { id: 'districts', label: 'Districts', icon: FiMap },
+    { id: 'circuits', label: 'Circuits', icon: FiLayers },
     { id: 'societies', label: 'Societies', icon: FiMapPin },
+    { id: 'ministers', label: 'Ministers', icon: FiUsers },
     { id: 'transactions', label: 'Transactions', icon: FiDollarSign },
     { id: 'marketplace', label: 'Marketplace', icon: FiShoppingBag },
   ]},
