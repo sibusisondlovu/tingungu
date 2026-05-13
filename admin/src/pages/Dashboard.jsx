@@ -19,27 +19,28 @@ export default function Dashboard() {
   const [userCount, setUserCount] = useState(null);
   const [noticeCount, setNoticeCount] = useState(null);
   const [mediaCount, setMediaCount] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [sqlStats, setSqlStats] = useState({ districts: 0, circuits: 0, societies: 0, ministers: 0, products: 0 });
   const [givingDist, setGivingDist] = useState([]);
 
   useEffect(() => {
     const unsubs = [];
 
-    // Users
-    unsubs.push(onSnapshot(collection(db, 'users'), snap => {
-      setUserCount(snap.size);
-    }));
+    // Firestore Stats
+    unsubs.push(onSnapshot(collection(db, 'users'), snap => setUserCount(snap.size)));
+    unsubs.push(onSnapshot(collection(db, 'notices'), snap => setNoticeCount(snap.size)));
+    unsubs.push(onSnapshot(collection(db, 'media'), snap => setMediaCount(snap.size)));
 
-    // Notices
-    unsubs.push(onSnapshot(collection(db, 'notices'), snap => {
-      setNoticeCount(snap.size);
-    }));
-
-    // Media
-    unsubs.push(onSnapshot(collection(db, 'media'), snap => {
-      setMediaCount(snap.size);
-    }));
+    // MySQL Stats
+    const fetchSqlStats = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/stats`);
+        const data = await res.json();
+        setSqlStats(data);
+      } catch (err) {
+        console.error('Error fetching SQL stats:', err);
+      }
+    };
+    fetchSqlStats();
 
     // Giving options distribution
     unsubs.push(onSnapshot(collection(db, 'giving_options'), snap => {
@@ -55,8 +56,16 @@ export default function Dashboard() {
       icon: FiUsers, color: '#3B0D11', bg: 'rgba(59,13,17,0.08)',
     },
     {
-      label: 'Total Revenue', value: `R ${(totalRevenue || 48250).toLocaleString()}`,
-      icon: FiDollarSign, color: '#10b981', bg: '#d1fae5',
+      label: 'Societies', value: sqlStats.societies,
+      icon: FiShoppingBag, color: '#10b981', bg: '#d1fae5',
+    },
+    {
+      label: 'Circuits', value: sqlStats.circuits,
+      icon: FiBell, color: '#f59e0b', bg: '#fef3c7',
+    },
+    {
+      label: 'Districts', value: sqlStats.districts,
+      icon: FiVideo, color: '#3b82f6', bg: '#dbeafe',
     },
     {
       label: 'Active Notices', value: noticeCount ?? '—',
@@ -67,20 +76,12 @@ export default function Dashboard() {
       icon: FiVideo, color: '#3b82f6', bg: '#dbeafe',
     },
     {
-      label: 'Giving This Month', value: 'R 7,120',
-      icon: FiHeart, color: '#ef4444', bg: '#fee2e2',
-    },
-    {
-      label: 'Marketplace Sales', value: 'R 3,640',
+      label: 'Products', value: sqlStats.products,
       icon: FiShoppingBag, color: '#8b5cf6', bg: '#ede9fe',
     },
     {
-      label: 'Open Tickets', value: 4,
-      icon: FiMessageSquare, color: '#FB8B24', bg: 'rgba(251,139,36,0.1)',
-    },
-    {
-      label: 'Growth (MoM)', value: '+14.2%',
-      icon: FiTrendingUp, color: '#10b981', bg: '#d1fae5',
+      label: 'Ministers', value: sqlStats.ministers,
+      icon: FiUsers, color: '#FB8B24', bg: 'rgba(251,139,36,0.1)',
     },
   ];
 

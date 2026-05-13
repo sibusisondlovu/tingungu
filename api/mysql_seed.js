@@ -37,6 +37,23 @@ CREATE TABLE IF NOT EXISTS societies (
 );
 
 -- =========================================
+-- PRODUCTS (MARKETPLACE)
+-- =========================================
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(150) NOT NULL,
+    product_title VARCHAR(255),
+    seller_name VARCHAR(150),
+    cost_price DECIMAL(10,2),
+    selling_price DECIMAL(10,2),
+    product_description TEXT,
+    category VARCHAR(100),
+    stock_quantity INT DEFAULT 0,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================
 -- PERSONS
 -- =========================================
 CREATE TABLE IF NOT EXISTS persons (
@@ -150,6 +167,12 @@ INSERT IGNORE INTO appointments (person_id, society_id, category_id) VALUES
 (23, 52, 5), (24, 53, 2), (25, 54, 2), (26, 55, 2), (27, 57, 2), (29, 58, 2), (30, 59, 2),
 (31, 60, 2), (32, 61, 2), (33, 62, 2), (34, 63, 2), (35, 64, 2), (36, 65, 2), (37, 66, 2),
 (38, 68, 2);
+
+INSERT IGNORE INTO products (product_name, product_title, seller_name, cost_price, selling_price, product_description, category, stock_quantity) VALUES
+('Love & Loving Tumbler Set', 'Bespoke 4pc Tumbler Set', 'Xpressive Culture', 150.00, 250.00, 'A soft, minimalist aesthetic with clean lettering, designed to inspire and promote a mindful home environment.', 'Glassware', 10),
+('Bespoke Gifting Box', 'Custom Intentional Gifting', 'Xpressive Culture', 350.00, 550.00, 'Hand-picked artisanal items curated for a special recipient.', 'Gifting', 5),
+('Branded Custom Apparel', 'Xpressive Culture Apparel', 'Xpressive Culture', 200.00, 350.00, 'High-quality custom branded apparel for teams or individuals.', 'Clothing', 20),
+('Artisanal Glassware Set', 'Hand-crafted Glass Collection', 'Xpressive Culture', 400.00, 650.00, 'Unique, hand-crafted glassware for an elegant home.', 'Glassware', 8);
 `;
 
 async function seed() {
