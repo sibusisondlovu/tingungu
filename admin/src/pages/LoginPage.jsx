@@ -72,6 +72,29 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <button 
+            className="btn-link" 
+            onClick={async () => {
+              if (!email) {
+                setError('Please enter your email address first.');
+                return;
+              }
+              try {
+                const { auth } = await import('../firebase');
+                const { sendPasswordResetEmail } = await import('firebase/auth');
+                await sendPasswordResetEmail(auth, email);
+                alert('Password reset email sent! Check your inbox.');
+              } catch (err) {
+                setError('Failed to send reset email. Check if the email is correct.');
+              }
+            }}
+            style={{ fontSize: 13, color: 'var(--maroon)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            Forgot Password?
+          </button>
+        </div>
       </div>
     </div>
   );
