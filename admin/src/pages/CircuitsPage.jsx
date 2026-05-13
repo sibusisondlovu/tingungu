@@ -29,6 +29,9 @@ export default function CircuitsPage() {
   const [form, setForm] = useState({ code: '', name: '', district_id: '' });
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchCircuits();
     fetchDistricts();
@@ -74,12 +77,17 @@ export default function CircuitsPage() {
     }
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = circuits.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(circuits.length / itemsPerPage);
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1>Circuits</h1>
-          <p>Manage church circuits (MySQL)</p>
+          <p>Manage church circuits</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}><FiPlus /> Add Circuit</button>
       </div>
@@ -89,29 +97,51 @@ export default function CircuitsPage() {
           <div className="empty-state">
             <FiLayers />
             <h3>No circuits</h3>
-            <p>Add church circuits to the MySQL database</p>
+            <p>Add church circuits to the database</p>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Circuit Name</th>
-                  <th>District</th>
-                </tr>
-              </thead>
-              <tbody>
-                {circuits.map(c => (
-                  <tr key={c.circuit_id}>
-                    <td><span className="badge badge-outline">#{c.circuit_code}</span></td>
-                    <td><strong>{c.circuit_name}</strong></td>
-                    <td>{c.district_name || '—'}</td>
+          <>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Circuit Name</th>
+                    <th>District</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentItems.map(c => (
+                    <tr key={c.circuit_id}>
+                      <td><span className="badge badge-outline">#{c.circuit_code}</span></td>
+                      <td><strong>{c.circuit_name}</strong></td>
+                      <td>{c.district_name || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  Previous
+                </button>
+                <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

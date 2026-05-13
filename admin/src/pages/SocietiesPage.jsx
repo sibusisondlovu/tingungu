@@ -30,6 +30,9 @@ export default function SocietiesPage() {
   const [form, setForm] = useState({ name: '', circuit_id: '' });
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchSocieties();
     fetchCircuits();
@@ -107,12 +110,17 @@ export default function SocietiesPage() {
     }
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = societies.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(societies.length / itemsPerPage);
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1>Societies</h1>
-          <p>Manage church societies and circuits (MySQL)</p>
+          <p>Manage church societies and circuits</p>
         </div>
         <button className="btn btn-primary" onClick={openNew}><FiPlus /> Add Society</button>
       </div>
@@ -122,36 +130,58 @@ export default function SocietiesPage() {
           <div className="empty-state">
             <FiMapPin />
             <h3>No societies</h3>
-            <p>Add church societies from the MySQL database</p>
+            <p>Add church societies to the database</p>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Society Name</th>
-                  <th>Circuit</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {societies.map(s => (
-                  <tr key={s.society_id}>
-                    <td><span className="badge badge-outline">#{s.society_id}</span></td>
-                    <td><strong>{s.society_name}</strong></td>
-                    <td>{s.circuit_name || '—'}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button className="btn btn-outline btn-sm btn-icon" onClick={() => openEdit(s)}><FiEdit2 size={14} /></button>
-                        <button className="btn btn-danger btn-sm btn-icon" onClick={() => remove(s.society_id)}><FiTrash2 size={14} /></button>
-                      </div>
-                    </td>
+          <>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Society Name</th>
+                    <th>Circuit</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentItems.map(s => (
+                    <tr key={s.society_id}>
+                      <td><span className="badge badge-outline">#{s.society_id}</span></td>
+                      <td><strong>{s.society_name}</strong></td>
+                      <td>{s.circuit_name || '—'}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button className="btn btn-outline btn-sm btn-icon" onClick={() => openEdit(s)}><FiEdit2 size={14} /></button>
+                          <button className="btn btn-danger btn-sm btn-icon" onClick={() => remove(s.society_id)}><FiTrash2 size={14} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  Previous
+                </button>
+                <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

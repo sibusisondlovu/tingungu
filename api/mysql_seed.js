@@ -92,7 +92,7 @@ INSERT IGNORE INTO societies (society_name, circuit_id) VALUES
 ('Willows', 2), ('Atteridgeville', 2), ('Sunnyside', 2), ('Saulsville', 2), ('Brooklyn', 2), ('Pta Central', 2),
 ('The Glen', 3), ('Eastview', 3), ('Eersterust', 3), ('Brooklyn', 3), ('St Georges', 3), ('Mamelodi East', 3),
 ('Mamelodi Central', 3), ('Valley', 4), ('Sinoville', 4), ('Pta North & Trinity', 4), ('Trinity', 4),
-('Midstream', 5), ('Westview', 5), ('Elim', 5), ('Gracewell', 5), ('Lyttleton', 5), ('Mnandi/St John\'s', 5),
+('Midstream', 5), ('Westview', 5), ('Elim', 5), ('Gracewell', 5), ('Lyttleton', 5), ('Mnandi/St John''s', 5),
 ('Coalfields', 6), ('Kungwini', 6), ('Siyabuswa', 7), ('Middleburg', 8), ('Groblersdal', 8), ('Lydenburg & Sabie', 9),
 ('Rustenburg/Mooinooi', 10), ('Geelhout Park', 10), ('Thlabane', 10), ('Ebenezer', 11), ('Bethel', 11),
 ('Mabieskraal', 12), ('Belabela', 13), ('Waterberg', 13), ('Temba', 14), ('Makapan', 15), ('Lebotloane', 16),
@@ -171,7 +171,18 @@ async function seed() {
     await connection.query(`USE ${process.env.DB_NAME || 'methodist_church_db'}`);
 
     console.log('Running DDL and Seeding Data...');
-    await connection.query(sqlScript);
+    
+    // Split script by semicolon but be careful with data
+    const statements = sqlScript.split(';').map(s => s.trim()).filter(s => s.length > 0);
+    
+    for (const statement of statements) {
+      try {
+        await connection.query(statement);
+      } catch (err) {
+        console.error('Statement failed:', statement.substring(0, 50) + '...');
+        console.error('Error:', err.message);
+      }
+    }
 
     console.log('MySQL Database Seeded Successfully!');
   } catch (err) {

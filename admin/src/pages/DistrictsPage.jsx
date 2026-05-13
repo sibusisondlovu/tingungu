@@ -28,6 +28,9 @@ export default function DistrictsPage() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchDistricts();
   }, []);
@@ -61,12 +64,17 @@ export default function DistrictsPage() {
     }
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = districts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(districts.length / itemsPerPage);
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1>Districts</h1>
-          <p>Manage church districts (MySQL)</p>
+          <p>Manage church districts</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}><FiPlus /> Add District</button>
       </div>
@@ -76,27 +84,49 @@ export default function DistrictsPage() {
           <div className="empty-state">
             <FiMap />
             <h3>No districts</h3>
-            <p>Add church districts to the MySQL database</p>
+            <p>Add church districts to the database</p>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>District Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {districts.map(d => (
-                  <tr key={d.district_id}>
-                    <td><span className="badge badge-outline">#{d.district_id}</span></td>
-                    <td><strong>{d.district_name}</strong></td>
+          <>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>District Name</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentItems.map(d => (
+                    <tr key={d.district_id}>
+                      <td><span className="badge badge-outline">#{d.district_id}</span></td>
+                      <td><strong>{d.district_name}</strong></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  Previous
+                </button>
+                <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                <button 
+                  className="btn btn-outline btn-sm" 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
