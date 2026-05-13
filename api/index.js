@@ -256,7 +256,7 @@ app.get('/api/stats', async (req, res) => {
     const [[{ count: districts }]] = await db.query('SELECT COUNT(*) as count FROM districts');
     const [[{ count: circuits }]] = await db.query('SELECT COUNT(*) as count FROM circuits');
     const [[{ count: societies }]] = await db.query('SELECT COUNT(*) as count FROM societies');
-    const [[{ count: ministers }]] = await db.query('SELECT COUNT(*) as count FROM ministers');
+    const [[{ count: ministers }]] = await db.query('SELECT COUNT(*) as count FROM persons');
     const [[{ count: products }]] = await db.query('SELECT COUNT(*) as count FROM products');
     
     res.json({

@@ -111,7 +111,16 @@ export default function MarketplacePage() {
   };
 
   const save = async () => {
-    if (!form.name || !form.selling_price) return;
+    console.log('Attempting to save product...', form);
+    if (!form.name) {
+      alert('Product Name is required');
+      return;
+    }
+    if (form.selling_price === '' || form.selling_price === null) {
+      alert('Selling Price is required');
+      return;
+    }
+    
     setLoading(true);
     try {
       const url = editing 
@@ -119,29 +128,45 @@ export default function MarketplacePage() {
         : `${API_BASE_URL}/products`;
       
       const method = editing ? 'PUT' : 'POST';
+      const payload = {
+        name: form.name,
+        title: form.title,
+        seller: form.seller,
+        cost_price: Number(form.cost_price) || 0,
+        selling_price: Number(form.selling_price) || 0,
+        description: form.description,
+        category: form.category,
+        stock: Number(form.stock) || 0,
+        image_url: form.image_url
+      };
+
+      console.log(`Sending ${method} to ${url}`, payload);
 
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          title: form.title,
-          seller: form.seller,
-          cost_price: Number(form.cost_price) || 0,
-          selling_price: Number(form.selling_price) || 0,
-          description: form.description,
-          category: form.category,
-          stock: Number(form.stock) || 0,
-          image_url: form.image_url
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        fetchProducts();
+        console.log('Save successful');
+        await fetchProducts();
         setShowModal(false);
+      } else {
+        const errorText = await res.text();
+        console.error('Save failed:', errorText);
+        let errorMessage = 'Unknown error';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = errorText.substring(0, 100);
+        }
+        alert(`Failed to save: ${errorMessage}`);
       }
     } catch (err) {
       console.error('Error saving product:', err);
+      alert(`Connection error: ${err.message}. Target: ${API_BASE_URL}`);
     } finally {
       setLoading(false);
     }
