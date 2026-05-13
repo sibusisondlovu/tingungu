@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FiUsers, FiDollarSign, FiBell, FiVideo, FiTrendingUp, FiHeart, FiShoppingBag, FiMessageSquare } from 'react-icons/fi';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { API_BASE_URL } from '../config';
 
 const COLORS = ['#3B0D11', '#FB8B24', '#10b981', '#3b82f6', '#8b5cf6'];
 
@@ -33,7 +34,8 @@ export default function Dashboard() {
     // MySQL Stats
     const fetchSqlStats = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/stats`);
+        const res = await fetch(`${API_BASE_URL}/stats`, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         setSqlStats(data);
       } catch (err) {
@@ -41,13 +43,17 @@ export default function Dashboard() {
       }
     };
     fetchSqlStats();
+    const interval = setInterval(fetchSqlStats, 5000);
 
     // Giving options distribution
     unsubs.push(onSnapshot(collection(db, 'giving_options'), snap => {
       setGivingDist(snap.docs.map(d => ({ name: d.data().name || 'Option', value: Math.floor(Math.random() * 3000) + 500 })));
     }));
 
-    return () => unsubs.forEach(u => u());
+    return () => {
+      unsubs.forEach(u => u());
+      clearInterval(interval);
+    };
   }, []);
 
   const stats = [
