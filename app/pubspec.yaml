@@ -25,6 +25,7 @@ dependencies:
   webview_flutter:
   http: ^1.2.0
   mysql1:
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -204,4 +205,12 @@ flutter:
     - family: 'Poppins'
       fonts:
         - asset: lib/assets/fonts/Poppins-Regular.otf
-
+    - family: 'Rubik'
+      fonts:
+        - asset: lib/assets/fonts/Rubik-Regular.ttf
+        - asset: lib/assets/fonts/Rubik-Medium.ttf
+          weight: 500
+        - asset: lib/assets/fonts/Rubik-Bold.ttf
+          weight: 700
+        - asset: lib/assets/fonts/Rubik-Italic.ttf
+          style: italic

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'thank_you_screen.dart';
 import '../components/payment_method_selector.dart';
 
@@ -124,14 +125,18 @@ class _StoreScreenState extends State<StoreScreen> {
           )
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('products').snapshots(),
+      body: FutureBuilder<http.Response>(
+        future: http.get(Uri.parse('https://tingungu-api.azurewebsites.net/api/products')),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFFFB8B24)));
           }
 
-          final products = snapshot.data!.docs;
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text('Failed to load products.'));
+          }
+
+          final List<dynamic> products = json.decode(snapshot.data!.body);
           if (products.isEmpty) {
             return const Center(child: Text('No products available.'));
           }
@@ -147,7 +152,7 @@ class _StoreScreenState extends State<StoreScreen> {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
-              final data = product.data() as Map<String, dynamic>;
+              final productId = product['product_id'].toString();
 
               return Card(
                 elevation: 3,
@@ -161,8 +166,16 @@ class _StoreScreenState extends State<StoreScreen> {
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          image: (product['image_url'] != null && product['image_url'].toString().isNotEmpty)
+                              ? DecorationImage(
+                                  image: NetworkImage(product['image_url']),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                        child: const Icon(Icons.storefront, size: 50, color: Colors.grey),
+                        child: (product['image_url'] == null || product['image_url'].toString().isEmpty)
+                            ? const Icon(Icons.storefront, size: 50, color: Colors.grey)
+                            : null,
                       ),
                     ),
                     Expanded(
@@ -173,21 +186,21 @@ class _StoreScreenState extends State<StoreScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              data['name'] ?? 'Unknown',
+                              product['product_name'] ?? 'Unknown',
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                             ),
                             const Spacer(),
                             Text(
-                              'R ${data['price']?.toString() ?? '0.00'}',
+                              'R ${product['selling_price']?.toString() ?? '0.00'}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF3B0D11)),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
-                                onPressed: () => _addToCart(product.id),
+                                onPressed: () => _addToCart(productId),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFB8B24),
                                   foregroundColor: Colors.white,
@@ -290,20 +303,24 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('products').where(FieldPath.documentId, whereIn: widget.cart.keys.toList()).get(),
+          FutureBuilder<http.Response>(
+            future: http.get(Uri.parse('https://tingungu-api.azurewebsites.net/api/products')),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFFFB8B24)));
+              if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: Color(0xFFFB8B24)));
+              if (!snapshot.hasData) return const Center(child: Text('Failed to load cart'));
               
-              final products = snapshot.data!.docs;
+              final allProducts = json.decode(snapshot.data!.body) as List<dynamic>;
+              final products = allProducts.where((p) => widget.cart.containsKey(p['product_id'].toString())).toList();
+              
               double total = 0;
 
               return Column(
                 children: [
                   ...products.map((p) {
-                    final data = p.data() as Map<String, dynamic>;
-                    final price = (data['price'] ?? 0.0).toDouble();
-                    final qty = widget.cart[p.id] ?? 0;
+                    final data = p;
+                    final price = double.tryParse(data['selling_price']?.toString() ?? '0') ?? 0.0;
+                    final pId = data['product_id'].toString();
+                    final qty = widget.cart[pId] ?? 0;
                     if (qty == 0) return const SizedBox.shrink();
                     total += price * qty;
                     
@@ -323,15 +340,23 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
                             decoration: BoxDecoration(
                               color: Colors.grey[100],
                               borderRadius: BorderRadius.circular(8),
+                              image: (data['image_url'] != null && data['image_url'].toString().isNotEmpty)
+                                  ? DecorationImage(
+                                      image: NetworkImage(data['image_url']),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
                             ),
-                            child: const Icon(Icons.shopping_bag_outlined, color: Colors.grey),
+                            child: (data['image_url'] == null || data['image_url'].toString().isEmpty)
+                                ? const Icon(Icons.shopping_bag_outlined, color: Colors.grey)
+                                : null,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(data['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                Text(data['product_name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 Text('R $price', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                               ],
                             ),
@@ -341,7 +366,7 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
                               IconButton(
                                 icon: const Icon(Icons.remove_circle_outline, color: Colors.grey, size: 20),
                                 onPressed: () {
-                                  widget.onUpdateQuantity(p.id, qty - 1);
+                                  widget.onUpdateQuantity(pId, qty - 1);
                                   setState(() {});
                                 },
                               ),
@@ -349,7 +374,7 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
                               IconButton(
                                 icon: const Icon(Icons.add_circle_outline, color: Color(0xFFFB8B24), size: 20),
                                 onPressed: () {
-                                  widget.onUpdateQuantity(p.id, qty + 1);
+                                  widget.onUpdateQuantity(pId, qty + 1);
                                   setState(() {});
                                 },
                               ),
@@ -368,6 +393,8 @@ class _CartBottomSheetState extends State<_CartBottomSheet> {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isProcessing ? null : () {
                         showModalBottomSheet(

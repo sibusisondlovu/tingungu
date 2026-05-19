@@ -172,12 +172,12 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF5B8FA3).withOpacity(0.1),
+                color: const Color(0xFF3B0D11).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: const Icon(
                 Icons.account_balance_wallet,
-                color: Color(0xFF5B8FA3),
+                color: Color(0xFF3B0D11),
                 size: 40,
               ),
             ),
@@ -203,7 +203,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               height: 50,
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  const Color(0xFF5B8FA3).withOpacity(0.8),
+                  const Color(0xFF3B0D11).withOpacity(0.8),
                 ),
               ),
             ),
@@ -228,7 +228,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
             content: Text(
               '✓ ${result['responseMessage'] ?? 'Payment successful! Airtime will be added shortly.'}',
             ),
-            backgroundColor: const Color(0xFF5B8FA3),
+            backgroundColor: const Color(0xFF3B0D11),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -260,7 +260,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Redirecting to PayFast...'),
-        backgroundColor: Color(0xFFD4AF85),
+        backgroundColor: Color(0xFFFB8B24),
         duration: Duration(seconds: 2),
       ),
     );
@@ -303,7 +303,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF0000),
+                      color: Color(0xFF3B0D11),
                     ),
                   ),
                   Text(
@@ -319,7 +319,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Color(0xFFFF0000),
+                      color: Color(0xFF3B0D11),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -331,7 +331,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(0xFF8B7355),
+                          color: Color(0xFFFB8B24),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
@@ -343,7 +343,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(0xFF8B7355),
+                          color: Color(0xFFFB8B24),
                           width: 2,
                         ),
                       ),
@@ -362,7 +362,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B7355),
+                        backgroundColor: const Color(0xFFFB8B24),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -408,12 +408,12 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF8B7355).withOpacity(0.1),
+                color: const Color(0xFFFB8B24).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: const Icon(
                 Icons.local_offer,
-                color: Color(0xFF8B7355),
+                color: Color(0xFFFB8B24),
                 size: 40,
               ),
             ),
@@ -440,7 +440,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
               height: 50,
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  const Color(0xFF8B7355).withOpacity(0.8),
+                  const Color(0xFFFB8B24).withOpacity(0.8),
                 ),
               ),
             ),
@@ -465,7 +465,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
             content: Text(
               '✓ ${result['responseMessage'] ?? 'Voucher redeemed! Airtime added to your account.'}',
             ),
-            backgroundColor: const Color(0xFF8B7355),
+            backgroundColor: const Color(0xFFFB8B24),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -499,7 +499,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
       backgroundColor: const Color(0xFFFAF9F6),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color(0xFFD4AF85),
+        backgroundColor: const Color(0xFFFB8B24),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
@@ -522,7 +522,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFFFF0000),
+                  color: Color(0xFF3B0D11),
                 ),
               ),
               const SizedBox(height: 12),
@@ -535,7 +535,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Color(0xFFD4AF85),
+                      color: Color(0xFFFB8B24),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -547,7 +547,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Color(0xFFD4AF85),
+                      color: Color(0xFFFB8B24),
                       width: 2,
                     ),
                   ),
@@ -565,7 +565,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFFFF0000),
+                  color: Color(0xFF3B0D11),
                 ),
               ),
               const SizedBox(height: 12),
@@ -610,7 +610,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF85),
+                            color: const Color(0xFFFB8B24),
                             borderRadius: BorderRadius.circular(50),
                           ),
                         ),
@@ -638,7 +638,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFFFF0000),
+                  color: Color(0xFF3B0D11),
                 ),
               ),
               const SizedBox(height: 12),
@@ -651,7 +651,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Color(0xFFD4AF85),
+                      color: Color(0xFFFB8B24),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
@@ -663,7 +663,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Color(0xFFD4AF85),
+                      color: Color(0xFFFB8B24),
                       width: 2,
                     ),
                   ),
@@ -688,17 +688,17 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                       });
                     },
                     backgroundColor: Colors.white,
-                    selectedColor: const Color(0xFFD4AF85).withOpacity(0.2),
+                    selectedColor: const Color(0xFFFB8B24).withOpacity(0.2),
                     side: BorderSide(
                       color: isSelected
-                          ? const Color(0xFFD4AF85)
+                          ? const Color(0xFFFB8B24)
                           : Colors.grey[300]!,
                       width: isSelected ? 2 : 1,
                     ),
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? const Color(0xFFD4AF85)
-                          : const Color(0xFFFF0000),
+                          ? const Color(0xFFFB8B24)
+                          : const Color(0xFF3B0D11),
                       fontWeight: FontWeight.w600,
                     ),
                   );
@@ -710,7 +710,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFD4AF85).withOpacity(0.3),
+                      color: const Color(0xFFFB8B24).withOpacity(0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -723,7 +723,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD4AF85),
+                    backgroundColor: const Color(0xFFFB8B24),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -792,7 +792,7 @@ class _BuyAirtimeScreenState extends State<BuyAirtimeScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF0000),
+                      color: Color(0xFF3B0D11),
                     ),
                   ),
                   const SizedBox(height: 4),

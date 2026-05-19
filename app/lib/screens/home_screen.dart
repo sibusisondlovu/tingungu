@@ -214,13 +214,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     _buildGreeting(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     _buildWalletCard(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     _buildScriptureCard(),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 20),
                     _buildMarketplace(),
-                    const SizedBox(height: 28),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -321,15 +320,15 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           '$timeGreeting, $userName! 👋',
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color(0xFF3B0D11),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           'Welcome to your spiritual journey',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
       ],
     );
@@ -340,20 +339,12 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFFB8B24).withOpacity(0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(color: const Color(0xFFFB8B24).withOpacity(0.15), blurRadius: 8, offset: const Offset(0, 2))],
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFB8B24)),
-          ),
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFB8B24))),
         ),
       );
     }
@@ -361,68 +352,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFB8B24).withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: const Color(0xFFFB8B24).withOpacity(0.15), blurRadius: 8, offset: const Offset(0, 2))],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFB8B24),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Daily Scripture',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFB8B24),
-                  letterSpacing: 0.5,
-                ),
-              ),
+              Container(width: 3, height: 16, decoration: BoxDecoration(color: const Color(0xFFFB8B24), borderRadius: BorderRadius.circular(2))),
+              const SizedBox(width: 8),
+              const Text('Daily Scripture', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFFB8B24))),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Text(
             dailyScripture!.text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              color: Color(0xFF3B0D11),
-              height: 1.6,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Color(0xFF3B0D11), height: 1.3, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                dailyScripture!.reference,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFB8B24),
-                ),
-              ),
-              Text(
-                dailyScripture!.translation,
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              ),
+              Text(dailyScripture!.reference, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFFB8B24))),
+              Text(dailyScripture!.translation, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
             ],
           ),
         ],
@@ -443,41 +397,42 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildMarketplaceCard(
-                icon: Icons.shopping_cart_outlined,
-                label: 'Buy',
-                color: const Color(0xFFFB8B24),
+        _buildMarketplaceTile(
+          icon: Icons.phone_android_outlined,
+          title: 'BUY',
+          subtitle: 'Buy data, airtime, electricity and digital subscriptions',
+          color: const Color(0xFFFB8B24),
+          onTap: () => _showVASBottomSheet(),
+        ),
+        _buildMarketplaceTile(
+          icon: Icons.store_mall_directory_outlined,
+          title: 'Tingungu Mall',
+          subtitle: 'Shop for church merchandise, accessories, and local goods.',
+          color: const Color(0xFFFB8B24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const StoreScreen(),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMarketplaceCard(
-                icon: Icons.local_offer_outlined,
-                label: 'Sell',
-                color: const Color(0xFFFB8B24),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildMarketplaceCard({
+  Widget _buildMarketplaceTile({
     required IconData icon,
-    required String label,
+    required String title,
+    required String subtitle,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        if (label == 'Buy') {
-          _showBuyBottomSheet();
-        }
-      },
+      onTap: onTap,
       child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -489,8 +444,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
+        padding: const EdgeInsets.all(16),
+        child: Row(
           children: [
             Container(
               width: 56,
@@ -501,15 +456,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Icon(icon, color: color, size: 28),
             ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF3B0D11),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF3B0D11),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
           ],
         ),
       ),
@@ -709,105 +681,78 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF3B0D11),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF3B0D11).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Tingungu Wallet',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _isLoadingWallet
-                      ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : Text(
-                    'R ${walletBalance.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                   final result = await Navigator.push(
-                     context,
-                     MaterialPageRoute(
-                       builder: (context) => const TopUpWalletScreen(),
-                     ),
-                   );
-
-                  // Reload wallet balance if top-up was successful
-                  if (result == true) {
-                    _loadWalletBalance();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF3B0D11),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'TOP UP',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                color: Colors.white.withOpacity(0.8),
-                size: 16,
-              ),
-              const SizedBox(width: 6),
               Text(
-                'Available Balance',
+                'Tingungu Wallet',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.9),
                 ),
               ),
+              const SizedBox(height: 4),
+              _isLoadingWallet
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      'R ${walletBalance.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
             ],
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TopUpWalletScreen(),
+                ),
+              );
+              if (result == true) {
+                _loadWalletBalance();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF3B0D11),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'TOP UP',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
