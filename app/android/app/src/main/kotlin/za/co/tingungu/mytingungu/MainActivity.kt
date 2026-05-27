@@ -1,4 +1,4 @@
-package za.co.tingungu.tingungu_app
+package za.co.tingungu.mytingungu
 
 import io.flutter.embedding.android.FlutterActivity
 

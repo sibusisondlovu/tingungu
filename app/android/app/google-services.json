@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:226294099341:android:6cbb7d031dae132b1e61c4",
         "android_client_info": {
-          "package_name": "za.co.tingungu.tingungu_app"
+          "package_name": "za.co.tingungu.mytingungu"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "226294099341-7a1cemfouruvpih4hkn49m144n6v1tbh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "za.co.tingungu.tingungu_app",
+            "package_name": "za.co.tingungu.mytingungu",
             "certificate_hash": "6318e9e2a59570e41db3c67323695444c61adde5"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "226294099341-on1u4vl9gmc01f4tf1h11dr7bvigr5b2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "za.co.tingungu.tingungu_app",
+            "package_name": "za.co.tingungu.mytingungu",
             "certificate_hash": "eb307f9c52122847475cff6ded348930898f7502"
           }
         },
