@@ -17,6 +17,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 import EventsPage from './pages/EventsPage';
 import LoginPage from './pages/LoginPage';
+import TestingProgramPage from './pages/TestingProgramPage';
 
 const PAGE_TITLES = {
   dashboard: { title: 'Dashboard', subtitle: 'Overview of your Tingungu community' },
@@ -34,6 +35,7 @@ const PAGE_TITLES = {
   tickets: { title: 'Support Tickets', subtitle: 'User-submitted issues' },
   analytics: { title: 'Analytics', subtitle: 'App and website traffic insights' },
   settings: { title: 'Settings', subtitle: 'API keys and integrations' },
+  testing: { title: 'Testing Program', subtitle: 'Users interested in early access' },
 };
 
 const PAGE_COMPONENTS = {
@@ -52,6 +54,7 @@ const PAGE_COMPONENTS = {
   tickets: TicketsPage,
   analytics: AnalyticsPage,
   settings: SettingsPage,
+  testing: TestingProgramPage,
 };
 
 function AdminApp() {

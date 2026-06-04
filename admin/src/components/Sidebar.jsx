@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FiHome, FiUsers, FiVideo, FiBell, FiShoppingBag, FiHeart, FiSettings,
-         FiLogOut, FiMessageSquare, FiCalendar, FiDollarSign, FiMapPin, FiBarChart2, FiMap, FiLayers } from 'react-icons/fi';
+         FiLogOut, FiMessageSquare, FiCalendar, FiDollarSign, FiMapPin, FiBarChart2, FiMap, FiLayers, FiMail } from 'react-icons/fi';
 
 const navItems = [
   { section: 'Overview', items: [
@@ -21,6 +21,7 @@ const navItems = [
     { id: 'ministers', label: 'Ministers', icon: FiUsers },
     { id: 'transactions', label: 'Transactions', icon: FiDollarSign },
     { id: 'marketplace', label: 'Marketplace', icon: FiShoppingBag },
+    { id: 'testing', label: 'Testing Program', icon: FiMail },
   ]},
   { section: 'Support & Admin', items: [
     { id: 'tickets', label: 'Support Tickets', icon: FiMessageSquare },
