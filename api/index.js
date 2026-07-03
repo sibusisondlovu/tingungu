@@ -319,4 +319,5 @@ app.get('/api/stats', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Connected to database host: ${process.env.DB_HOST}`);
+  // Redeploy trigger
 });
