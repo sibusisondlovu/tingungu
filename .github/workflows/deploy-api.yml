@@ -30,7 +30,7 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           cd api
-          zip -r ../release.zip . -x "node_modules/*" ".env" "serviceAccountKey.json"
+          zip -r ../release.zip . -x ".env" "serviceAccountKey.json"
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
