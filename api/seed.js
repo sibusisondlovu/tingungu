@@ -1,23 +1,101 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
-// Initialize Firebase Admin
-// You need to place your serviceAccountKey.json in the api folder
-const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+let db;
 
-if (fs.existsSync(serviceAccountPath)) {
-  const serviceAccount = require(serviceAccountPath);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+function getAccessTokenFromRefreshToken(refreshToken) {
+  return new Promise((resolve, reject) => {
+    const postData = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com'
+    }).toString();
+
+    const req = https.request({
+      hostname: 'oauth2.googleapis.com',
+      path: '/token',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.access_token) {
+            resolve(parsed.access_token);
+          } else {
+            reject(new Error('No access token in response: ' + data));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(postData);
+    req.end();
   });
-} else {
-  console.error('Error: serviceAccountKey.json not found in api folder.');
-  console.log('Please download it from Firebase Console -> Project Settings -> Service Accounts -> Generate new private key');
-  process.exit(1);
 }
 
-const db = admin.firestore();
+async function initFirebase() {
+  const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    db = admin.firestore();
+    return;
+  }
+
+  console.log('serviceAccountKey.json not found. Attempting to initialize using Firebase CLI access token...');
+  let accessToken;
+  try {
+    const homeDir = require('os').homedir();
+    const configPath = path.join(homeDir, '.config/configstore/firebase-tools.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (config.tokens && config.tokens.access_token) {
+        accessToken = config.tokens.access_token;
+      }
+    }
+  } catch (err) {
+    console.log('Error reading config file:', err.message);
+  }
+
+  if (accessToken) {
+    try {
+      admin.initializeApp({
+        credential: {
+          getAccessToken: () => Promise.resolve({
+            expires_in: 3599,
+            access_token: accessToken
+          })
+        },
+        projectId: 'tingungu-sa'
+      });
+      db = admin.firestore();
+      console.log('Firebase Admin initialized successfully with Firebase CLI access token.');
+      return;
+    } catch (err) {
+      console.error('Failed to initialize Firebase Admin with access token:', err.message);
+    }
+  }
+
+  console.log('Attempting initialization with default credentials...');
+  admin.initializeApp({
+    projectId: 'tingungu-sa'
+  });
+  db = admin.firestore();
+}
 
 const districts = [
   { id: '1', name: 'Limpopo' }
@@ -221,6 +299,7 @@ const appointments = [
 ];
 
 async function seed() {
+  await initFirebase();
   console.log('Starting seed process...');
 
   // Seed Districts

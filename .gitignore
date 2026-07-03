@@ -65,3 +65,8 @@ api/node_modules/
 api/.env
 api/serviceAccountKey.json
 api/*.pem
+
+# Built APKs & temporary seeders
+website/downloads/
+api/firestore_seed.js
+cpanel-deploy.zip

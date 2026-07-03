@@ -29,6 +29,8 @@ export default function EventsPage() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ month: 'January', date_start: '', date_end: '', description: '', venue: '' });
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'));
@@ -36,6 +38,17 @@ export default function EventsPage() {
       setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
   }, []);
+
+  const totalPages = Math.ceil(events.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentEvents = events.slice(indexOfFirstItem, indexOfLastItem);
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [events.length, totalPages, currentPage]);
 
   const openNew = () => { setEditing(null); setForm({ month: 'January', date_start: '', date_end: '', description: '', venue: '' }); setShowModal(true); };
   const openEdit = (ev) => { setEditing(ev); setForm({ month: ev.month || 'January', date_start: ev.date_start || '', date_end: ev.date_end || '', description: ev.description || '', venue: ev.venue || '' }); setShowModal(true); };
@@ -83,7 +96,7 @@ export default function EventsPage() {
                 <tr><th>Description</th><th>Month</th><th>Date</th><th>Venue</th><th>Actions</th></tr>
               </thead>
               <tbody>
-                {events.map(ev => (
+                {currentEvents.map(ev => (
                   <tr key={ev.id}>
                     <td><strong>{ev.description}</strong></td>
                     <td>{ev.month}</td>
@@ -99,6 +112,28 @@ export default function EventsPage() {
                 ))}
               </tbody>
             </table>
+            
+            {totalPages > 1 && (
+              <div className="pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

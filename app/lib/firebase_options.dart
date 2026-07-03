@@ -64,8 +64,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCAUA2qK41jnftXP_g2yx-P4yYyZwWgA_U',
-    appId: '1:226294099341:android:6cbb7d031dae132b1e61c4',
+    apiKey: 'AIzaSyC4sTuXfgLY2ab0V_gqOwskb5GMToCI2tE',
+    appId: '1:226294099341:web:eda15431457914bf1e61c4',
     messagingSenderId: '226294099341',
     projectId: 'tingungu-sa',
     authDomain: 'tingungu-sa.firebaseapp.com',

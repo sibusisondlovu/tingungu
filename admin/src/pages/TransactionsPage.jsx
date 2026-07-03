@@ -10,19 +10,32 @@ export default function TransactionsPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    // Listen to top-level transactions collection (or collectionGroup if nested under users)
     const unsubs = [];
 
-    // Try collectionGroup for users/{uid}/transactions pattern
+    const processDocs = (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => {
+        const da = a.createdAt || a.date || a.timestamp;
+        const db = b.createdAt || b.date || b.timestamp;
+        const tA = da?.toDate ? da.toDate().getTime() : (da ? new Date(da).getTime() : 0);
+        const tB = db?.toDate ? db.toDate().getTime() : (db ? new Date(db).getTime() : 0);
+        return tB - tA;
+      });
+      setTransactions(list);
+    };
+
     try {
-      const q = query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'));
-      unsubs.push(onSnapshot(q, snap => {
-        setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      }));
-    } catch {
-      unsubs.push(onSnapshot(collection(db, 'transactions'), snap => {
-        setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      }));
+      const q = query(collectionGroup(db, 'transactions'));
+      const unsub = onSnapshot(q, processDocs, err => {
+        console.warn("collectionGroup transactions subscription failed, falling back to top-level collection...", err);
+        const q2 = query(collection(db, 'transactions'));
+        const unsub2 = onSnapshot(q2, processDocs);
+        unsubs.push(unsub2);
+      });
+      unsubs.push(unsub);
+    } catch (err) {
+      console.warn("collectionGroup query creation failed, falling back...", err);
+      unsubs.push(onSnapshot(collection(db, 'transactions'), processDocs));
     }
 
     return () => unsubs.forEach(u => u());
@@ -31,7 +44,17 @@ export default function TransactionsPage() {
   const types = ['all', 'giving', 'topup', 'marketplace', 'airtime'];
 
   const filtered = transactions.filter(t => {
-    const matchType = filter === 'all' || (t.type || '').toLowerCase() === filter;
+    const typeLower = (t.type || '').toLowerCase();
+    let matchType = false;
+    if (filter === 'all') {
+      matchType = true;
+    } else if (filter === 'topup') {
+      matchType = typeLower.includes('topup') || typeLower.includes('top-up');
+    } else if (filter === 'marketplace') {
+      matchType = typeLower.includes('marketplace') || typeLower.includes('purchase');
+    } else {
+      matchType = typeLower.includes(filter);
+    }
     const matchSearch = (t.description || t.type || '').toLowerCase().includes(search.toLowerCase());
     return matchType && matchSearch;
   });
@@ -39,8 +62,12 @@ export default function TransactionsPage() {
   const total = filtered.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const typeColor = (type = '') => {
-    const map = { giving: 'badge-danger', topup: 'badge-success', marketplace: 'badge-info', airtime: 'badge-warning' };
-    return map[type.toLowerCase()] || 'badge-neutral';
+    const tLower = type.toLowerCase();
+    if (tLower.includes('giving')) return 'badge-danger';
+    if (tLower.includes('topup') || tLower.includes('top-up')) return 'badge-success';
+    if (tLower.includes('marketplace') || tLower.includes('purchase')) return 'badge-info';
+    if (tLower.includes('airtime')) return 'badge-warning';
+    return 'badge-neutral';
   };
 
   return (
@@ -99,14 +126,19 @@ export default function TransactionsPage() {
                   <tr key={t.id}>
                     <td><strong>{t.description || t.type || '—'}</strong></td>
                     <td><span className={`badge ${typeColor(t.type)}`} style={{ textTransform: 'capitalize' }}>{t.type || 'Unknown'}</span></td>
-                    <td style={{ fontWeight: 700, color: t.type === 'topup' ? 'var(--success)' : 'var(--maroon)' }}>
-                      {t.type === 'topup' ? '+' : '-'}R {(Math.abs(Number(t.amount)) || 0).toFixed(2)}
+                    <td style={{ fontWeight: 700, color: (t.type || '').toLowerCase().includes('topup') ? 'var(--success)' : 'var(--maroon)' }}>
+                      {(t.type || '').toLowerCase().includes('topup') ? '+' : '-'}R {(Math.abs(Number(t.amount)) || 0).toFixed(2)}
                     </td>
                     <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>
                       {t.userId?.slice(0, 12) || '—'}...
                     </td>
                     <td style={{ fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                      {t.createdAt?.toDate ? format(t.createdAt.toDate(), 'dd MMM yyyy HH:mm') : '—'}
+                      {(() => {
+                        const txDate = t.createdAt || t.date || t.timestamp;
+                        if (!txDate) return '—';
+                        const dateObj = txDate.toDate ? txDate.toDate() : new Date(txDate);
+                        return isNaN(dateObj.getTime()) ? '—' : format(dateObj, 'dd MMM yyyy HH:mm');
+                      })()}
                     </td>
                     <td><span className="badge badge-success">Completed</span></td>
                   </tr>

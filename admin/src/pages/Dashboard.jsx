@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [mediaCount, setMediaCount] = useState(null);
   const [sqlStats, setSqlStats] = useState({ districts: 0, circuits: 0, societies: 0, ministers: 0, products: 0 });
   const [givingDist, setGivingDist] = useState([]);
+  const [revenueData, setRevenueData] = useState(mockRevenueData);
 
   useEffect(() => {
     const unsubs = [];
@@ -45,10 +46,118 @@ export default function Dashboard() {
     fetchSqlStats();
     const interval = setInterval(fetchSqlStats, 5000);
 
-    // Giving options distribution
-    unsubs.push(onSnapshot(collection(db, 'giving_options'), snap => {
-      setGivingDist(snap.docs.map(d => ({ name: d.data().name || 'Option', value: Math.floor(Math.random() * 3000) + 500 })));
-    }));
+    // Helper to generate last 6 months slots
+    const getLast6Months = () => {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const result = [];
+      const today = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        result.push({
+          month: months[d.getMonth()],
+          year: d.getFullYear(),
+          monthIndex: d.getMonth(),
+          giving: 0,
+          marketplace: 0
+        });
+      }
+      return result;
+    };
+
+    const processTransactions = (txList) => {
+      const revSlots = getLast6Months();
+      let hasRealRevenue = false;
+      const givingMap = {};
+      let hasRealGiving = false;
+
+      txList.forEach(t => {
+        const txDate = t.createdAt || t.date || t.timestamp;
+        if (!txDate) return;
+
+        const dateObj = txDate.toDate ? txDate.toDate() : new Date(txDate);
+        if (isNaN(dateObj.getTime())) return;
+
+        const amount = Number(t.amount) || 0;
+        const typeLower = (t.type || '').toLowerCase();
+
+        const mIdx = dateObj.getMonth();
+        const yVal = dateObj.getFullYear();
+        const slot = revSlots.find(s => s.monthIndex === mIdx && s.year === yVal);
+
+        if (typeLower.includes('giving')) {
+          if (slot) {
+            slot.giving += amount;
+            hasRealRevenue = true;
+          }
+          let optionName = 'Other';
+          const match = (t.type || '').match(/Giving:\s*([^(:]+)/i);
+          if (match && match[1]) {
+            optionName = match[1].trim();
+          } else {
+            optionName = t.description || (t.type || '').replace(/giving:?/i, '').trim() || 'Giving';
+          }
+          givingMap[optionName] = (givingMap[optionName] || 0) + amount;
+          hasRealGiving = true;
+        } else if (typeLower.includes('marketplace') || typeLower.includes('purchase')) {
+          if (slot) {
+            slot.marketplace += amount;
+            hasRealRevenue = true;
+          }
+        }
+      });
+
+      if (hasRealRevenue) {
+        setRevenueData(revSlots);
+      } else {
+        setRevenueData(mockRevenueData);
+      }
+
+      if (hasRealGiving) {
+        const dist = Object.entries(givingMap).map(([name, value]) => ({ name, value }));
+        setGivingDist(dist);
+      } else {
+        // Fallback: fetch giving options and generate random values
+        const qOptions = query(collection(db, 'giving_options'));
+        const unsubOptions = onSnapshot(qOptions, snap => {
+          if (snap.size > 0) {
+            setGivingDist(snap.docs.map(d => ({ name: d.data().name || 'Option', value: Math.floor(Math.random() * 3000) + 500 })));
+          } else {
+            setGivingDist([
+              { name: 'Tithes', value: 2450 },
+              { name: 'Offerings', value: 1200 },
+              { name: 'Building Fund', value: 850 }
+            ]);
+          }
+        });
+        unsubs.push(unsubOptions);
+      }
+    };
+
+    // Listen to transactions
+    let txUnsub;
+    try {
+      const q = query(collectionGroup(db, 'transactions'));
+      txUnsub = onSnapshot(q, snap => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        processTransactions(list);
+      }, err => {
+        console.warn("collectionGroup transactions subscription failed, falling back to top-level collection...", err);
+        const q2 = query(collection(db, 'transactions'));
+        const unsub2 = onSnapshot(q2, snap => {
+          const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          processTransactions(list);
+        });
+        unsubs.push(unsub2);
+      });
+      unsubs.push(txUnsub);
+    } catch (err) {
+      console.warn("collectionGroup query failed, falling back...", err);
+      const unsub2 = onSnapshot(collection(db, 'transactions'), snap => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        processTransactions(list);
+      });
+      unsubs.push(unsub2);
+    }
 
     return () => {
       unsubs.forEach(u => u());
@@ -124,7 +233,7 @@ export default function Dashboard() {
           </div>
           <div className="card-body" style={{ paddingTop: 16 }}>
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={mockRevenueData}>
+              <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="gGiving" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B0D11" stopOpacity={0.3}/>

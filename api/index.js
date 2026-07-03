@@ -173,6 +173,45 @@ app.post('/api/circuits', async (req, res) => {
   }
 });
 
+// Update/Sync User Profile with MySQL Database
+app.put('/api/users/:email', async (req, res) => {
+  const { email } = req.params;
+  const { firstname, lastname, cellphone } = req.body;
+  try {
+    const db = await getPool();
+    const [rows] = await db.query('SELECT * FROM persons WHERE email = ?', [email]);
+    if (rows.length > 0) {
+      await db.query(
+        'UPDATE persons SET first_name = ?, surname = ?, cellphone = ? WHERE email = ?',
+        [firstname || '', lastname || '', cellphone || null, email]
+      );
+      res.json({ message: 'User updated in MySQL database successfully', email });
+    } else {
+      await db.query(
+        'INSERT INTO persons (first_name, surname, cellphone, email) VALUES (?, ?, ?, ?)',
+        [firstname || '', lastname || '', cellphone || null, email]
+      );
+      res.json({ message: 'User created in MySQL database successfully', email });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete User Profile from MySQL Database
+app.delete('/api/users/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    const db = await getPool();
+    await db.query('DELETE FROM persons WHERE email = ?', [email]);
+    res.json({ message: 'User deleted from MySQL database successfully', email });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 // Ministers
 app.get('/api/ministers', async (req, res) => {
   try {
